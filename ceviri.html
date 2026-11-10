@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#102a43" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Fluent Ops" />
+<title>Çeviriden Öğren</title>
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<style>:root{
+  --bg:#EEF1F2;--card:#FFFFFF;--sunk:#E3E8EA;--ink:#13202A;--muted:#5A6873;--line:#CED6DB;
+  --blue:#1F4FD1;--blue-soft:#DCE5FB;--green:#1E7A4C;--green-soft:#DCF0E4;--red:#B42318;--red-soft:#FBE3E0;--stamp:#B7791F;--stamp-soft:#F6EBD5;
+  --shadow:0 1px 2px rgba(19,32,42,.06);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;--f-read:"Literata",Georgia,serif;--f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#0F161C;--card:#172129;--sunk:#1D2932;--ink:#E6ECEF;--muted:#93A3AE;--line:#2B3943;
+  --blue:#7EA2FF;--blue-soft:#1E2C55;--green:#5FD39A;--green-soft:#123426;--red:#FF8A7E;--red-soft:#3D1A17;--stamp:#E3B260;--stamp-soft:#3A2E17;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink)}
+body{margin:0;font:15px/1.55 var(--f-display);padding-bottom:env(safe-area-inset-bottom)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.app{max-width:1280px;margin:auto;padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.hero{background:linear-gradient(125deg,#102a43,#164e63 58%,#166534);color:#fff;border-radius:14px;padding:18px 20px}
+.hero h1{margin:0 0 2px;font-size:clamp(24px,4vw,34px);font-weight:800;font-variation-settings:"wdth" 80;letter-spacing:-.01em}.hero p{margin:0;color:#d9efff;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:14px}
+.stat{background:#ffffff14;border:1px solid #ffffff28;border-radius:10px;padding:8px 10px}.stat b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}.stat span{font-size:11px;font-family:var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:#cfe3f2}
+.sync{margin-top:10px;font-size:12.5px;color:#d9efff}
+.toolbar,.grid,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar{margin:14px 0}
+.control{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--ink);min-width:0}
+select.control{min-width:130px}
+.btn{border:1px solid var(--line);border-radius:8px;padding:8px 12px;background:var(--card);color:var(--ink);font-weight:650;cursor:pointer;touch-action:manipulation;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.success{background:var(--green);border-color:var(--green);color:#fff}.btn.ghost{background:var(--card)}.btn.sm{padding:4px 9px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px;align-items:start}.layout>*{min-width:0}.source,.translation{overflow-wrap:anywhere}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+.sidebar{max-height:78vh;overflow:auto;position:sticky;top:64px}
+.search{width:100%;margin-bottom:10px}
+.article{display:block;width:100%;text-align:left;border:1px solid transparent;border-radius:8px;background:transparent;padding:9px 10px;margin:2px 0;cursor:pointer;color:var(--ink)}
+.article:hover,.article.active{background:var(--blue-soft);border-color:transparent}
+.article small{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px}
+.badge{display:inline-block;border-radius:5px;padding:2px 7px;background:var(--sunk);color:var(--muted);font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;margin:0 4px 4px 0}
+.lv1{background:var(--green-soft);color:var(--green)}.lv2{background:var(--stamp-soft);color:var(--stamp)}.lv3{background:var(--red-soft);color:var(--red)}.bacad{background:var(--blue-soft);color:var(--blue)}
+.topline{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:6px}
+.reader h2{margin:0 0 6px;font-size:22px;font-weight:750;font-variation-settings:"wdth" 85;text-wrap:balance}
+.sentence{padding:12px 14px;border-radius:10px;border:1px solid var(--line);margin:8px 0;background:var(--card);cursor:pointer}
+.sentence:hover{border-color:var(--blue)}.sentence.speaking{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
+.num{color:var(--muted);font-family:var(--f-mono);font-size:11px;margin-right:8px}
+.source{font-family:var(--f-read);font-size:17.5px;line-height:1.6}
+.translation{margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);color:var(--muted);font-size:14.5px}
+.hidden{display:none!important}
+mark{border-radius:4px;padding:0 3px;color:inherit}
+.hl-topic{background:#dbeafe;color:#1d4ed8}.hl-term{background:#f3e8ff;color:#6b21a8}.hl-verb{background:#dcfce7;color:#166534}.hl-link{background:#fef3c7;color:#92400e}
+.hl-acad{background:#ffe4e6;color:#9f1239;border-bottom:2px dotted #e11d48;cursor:help}
+@media(prefers-color-scheme:dark){.hl-topic{background:#1e3a8a55;color:#93c5fd}.hl-term{background:#581c8755;color:#d8b4fe}.hl-verb{background:#14532d66;color:#86efac}.hl-link{background:#78350f66;color:#fcd34d}.hl-acad{background:#88133766;color:#fda4af}}
+.legend span{padding:2px 8px;border-radius:5px;margin-right:5px;display:inline-block;margin-bottom:4px;font-size:12px}
+.answer{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);color:var(--ink);font-family:var(--f-read);font-size:16px}
+.result{margin-top:12px;border-radius:10px;padding:13px;background:var(--sunk);border:0}
+.score{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}.good{color:var(--green)}.bad{color:var(--red)}
+.tok-ok{background:var(--green-soft);color:var(--green);border-radius:4px;padding:0 2px}.tok-miss{background:var(--red-soft);color:var(--red);border-radius:4px;padding:0 2px}
+.tabs{display:flex;gap:2px;margin-bottom:14px;overflow-x:auto;border-bottom:1px solid var(--line)}
+.tab{white-space:nowrap;border:0!important;border-radius:0!important;background:none!important;color:var(--muted)!important;border-bottom:2px solid transparent!important;padding:9px 12px!important}
+.tab.active{color:var(--ink)!important;border-bottom-color:var(--blue)!important}
+.progress{height:5px;background:var(--sunk);border-radius:3px;overflow:hidden;margin:8px 0}
+.progress i{display:block;height:100%;background:var(--green)}
+.note{color:var(--muted);font-size:13px}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.donebar{position:sticky;bottom:0;background:var(--card);padding:10px 0 calc(4px + env(safe-area-inset-bottom));border-top:1px solid var(--line);margin-top:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:9px;z-index:50;max-width:90vw;font-weight:600}
+.info{background:var(--stamp-soft);border:0;border-radius:8px;padding:10px 12px;color:var(--ink);font-size:13px;margin:8px 0}
+.wordlist{display:flex;flex-wrap:wrap;gap:6px}.wordlist span{background:var(--red-soft);color:var(--red);border-radius:6px;padding:3px 8px;font-size:13px;cursor:pointer}
+code{background:var(--sunk);padding:1px 5px;border-radius:4px;font-family:var(--f-mono);font-size:.85em}
+ol li{margin-bottom:5px}
+h3{font-size:16px}
+@media(max-width:860px){.stats{display:flex;overflow-x:auto;scrollbar-width:none;margin-left:-4px;margin-right:-4px;padding:0 4px}.stat{flex:0 0 auto;min-width:104px}.stat b{font-size:19px}.hero{padding:16px}.layout{grid-template-columns:minmax(0,1fr)}.sidebar{max-height:260px;position:static}.toolbar>*{flex:1 1 45%}.panel{padding:12px}.source{font-size:16.5px}}
+
+.al{border-radius:4px;cursor:pointer;font-weight:560;padding:0 1px;transition:background .15s}
+.al.c1{color:#C0392B}.al.c2{color:#1E8449}.al.c3{color:#C2570C}.al.c4{color:#1F5FBF}.al.c5{color:#8E44AD}.al.c6{color:#0E7C86}.al.c7{color:#C2185B}.al.c8{color:#7D5A1E}
+.al.on{background:var(--sunk);box-shadow:inset 0 -2px 0 currentColor}
+@media(prefers-color-scheme:dark){.al.c1{color:#FF8A7A}.al.c2{color:#6FDC9A}.al.c3{color:#FFAE6B}.al.c4{color:#8FB4FF}.al.c5{color:#D3A1F0}.al.c6{color:#6FD6DE}.al.c7{color:#FF8DB8}.al.c8{color:#E0BE84}}
+.cmode{margin:4px 0 6px}
+.translation .al{font-family:var(--f-read)}
+
+.pager{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0}
+.voasrc{margin-top:6px}.voasrc a{color:var(--blue)}
+</style><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Literata:opsz,wght@7..72,400;7..72,600&family=JetBrains+Mono:wght@400;600&display=swap">
+</head>
+<body>
+<style>
+.pkbar{position:sticky;top:0;z-index:20;background:var(--card,var(--surface));border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.pkbar-in{display:flex;align-items:center;gap:12px;max-width:1280px;margin:0 auto;padding-block:8px;padding-left:max(16px,env(safe-area-inset-left));padding-right:max(16px,env(safe-area-inset-right))}
+.pkbar img{width:28px;height:28px;border-radius:7px}
+.pkbar b{font-family:"Archivo",Arial,sans-serif;font-weight:800;font-size:17px;font-variation-settings:"wdth" 70;letter-spacing:.01em}
+.pkseg{margin-left:auto;display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--bg)}
+.pkseg a{padding:7px 12px;font-weight:650;font-size:13.5px;text-decoration:none;color:var(--muted);white-space:nowrap}
+.pkseg a[aria-current="page"]{background:var(--ink);color:var(--bg)}
+@media(max-width:420px){.pkbar b{display:none}.pkseg{margin-left:auto}}
+</style>
+<nav class="pkbar" aria-label="Uygulama kolları"><div class="pkbar-in"><img src="icon-180.png" alt=""><b>FLUENT OPS</b>
+<div class="pkseg"><a href="./" >Dersler</a><a href="ceviri.html" aria-current="page">Çeviriden Öğren</a></div></div></nav>
+<div class="app">
+<header class="hero">
+  <h1>Çeviriden Öğren</h1>
+  <p>Türkçe ↔ İngilizce: oku, dinle, çevir, akademik kelimeleri öğren ve “Done” ile işaretle.</p>
+  <div class="stats">
+    <div class="stat"><b id="sTotal">0</b><span>çalışma metni</span></div>
+    <div class="stat"><b id="sDone">0</b><span>Done</span></div>
+    <div class="stat"><b id="sTried">0</b><span>çalışılan</span></div>
+    <div class="stat"><b id="sAvg">0%</b><span>ortalama skor</span></div>
+    <div class="stat"><b id="sStreak">0</b><span>günlük seri</span></div>
+  </div>
+  <div class="sync" id="syncStatus">☁️ Google Drive bağlı değil · ilerleme bu cihazda saklanıyor</div>
+</header>
+
+<div class="toolbar">
+  <select id="direction" class="control"><option value="tr-en">Türkçe → İngilizce</option><option value="en-tr">İngilizce → Türkçe</option></select>
+  <select id="collection" class="control"><option value="all">Tüm koleksiyonlar</option><option value="voa" id="voaOpt">Günlük haberler · VOA</option><option value="gen">Genel (1000)</option><option value="acad">Akademik (300)</option><option value="read">Okuma makaleleri (500)</option><option value="mtr">MTR okuma (200)</option></select>
+  <select id="level" class="control"><option value="all">Tüm zorluklar</option><option value="1">Kolay</option><option value="2">Orta</option><option value="3">Zor</option></select>
+  <select id="topic" class="control"><option value="all">Tüm konular</option></select>
+  <select id="status" class="control"><option value="all">Tüm durumlar</option><option value="todo">Öğrenilmedi</option><option value="tried">Çalışıldı</option><option value="done">Done</option></select>
+  <button class="btn ghost" id="randomBtn">🎲 Rastgele</button>
+  <button class="btn ghost" id="nextTodoBtn">➡️ Sıradaki öğrenilmemiş</button>
+</div>
+
+<div class="layout">
+  <aside class="panel sidebar"><input id="search" class="control search" placeholder="Metin veya konu ara…"/><div class="note" id="listInfo"></div><div id="articleList"></div></aside>
+  <main class="panel reader">
+    <div class="tabs">
+      <button class="btn tab active" data-tab="learn">Cümle cümle</button>
+      <button class="btn tab" data-tab="full">Tam metin</button>
+      <button class="btn tab" data-tab="practice">Ben çevireyim</button>
+      <button class="btn tab" data-tab="words">Akademik kelimeler</button>
+      <button class="btn tab" data-tab="library">Metin ekle</button>
+      <button class="btn tab" data-tab="sync">☁️ Kayıt & Drive</button>
+    </div>
+    <div id="content"></div>
+  </main>
+</div>
+</div>
+<script src="news-voa.js"></script>
+<script src="reading-content.js"></script>
+
+<script>if(!(window.MTR_TEXTS&&window.MTR_TEXTS.length)){try{const s=localStorage.getItem("co.mtr");if(s)window.MTR_TEXTS=JSON.parse(s)}catch(e){}}</script>
+<script>
+"use strict";
+/* 1) GENEL İÇERİK — tamamen özgün metinler; BBC/VOA'dan yalnızca konu başlığı fikri alınmıştır. */
+const LEVELS={1:{name:"Kolay",cefr:"A2–B1",min:10,max:20},2:{name:"Orta",cefr:"B1–B2",min:15,max:35},3:{name:"Zor",cefr:"B2–C1",min:25,max:50}};
+const TOPICS=[
+ {key:"tech",tr:"Teknoloji",en:"technology",terms:[["akıllı telefonlar","smartphones"],["bulut hizmetleri","cloud services"],["siber güvenlik","cybersecurity"],["yazılım güncellemeleri","software updates"],["veri merkezleri","data centres"],["dijital beceriler","digital skills"]]},
+ {key:"ai",tr:"Yapay Zekâ",en:"artificial intelligence",terms:[["dil modelleri","language models"],["eğitim verisi","training data"],["otomasyon","automation"],["algoritmik önyargı","algorithmic bias"],["görüntü tanıma","image recognition"],["insan denetimi","human oversight"]]},
+ {key:"ev",tr:"Elektrikli Araçlar",en:"electric vehicles",terms:[["batarya kapasitesi","battery capacity"],["şarj altyapısı","charging infrastructure"],["rejeneratif frenleme","regenerative braking"],["termal yönetim","thermal management"],["menzil kaygısı","range anxiety"],["yol gürültüsü","road noise"]]},
+ {key:"eng",tr:"Mühendislik",en:"engineering",terms:[["sonlu elemanlar analizi","finite element analysis"],["malzeme seçimi","material selection"],["titreşim testleri","vibration tests"],["güvenlik katsayısı","the safety factor"],["prototipler","prototypes"],["maliyet hedefleri","cost targets"]]},
+ {key:"energy",tr:"Enerji",en:"energy",terms:[["güneş panelleri","solar panels"],["rüzgâr türbinleri","wind turbines"],["enerji depolama","energy storage"],["elektrik şebekesi","the power grid"],["enerji verimliliği","energy efficiency"],["fosil yakıtlar","fossil fuels"]]},
+ {key:"env",tr:"Çevre",en:"the environment",terms:[["geri dönüşüm","recycling"],["plastik atıklar","plastic waste"],["hava kirliliği","air pollution"],["biyolojik çeşitlilik","biodiversity"],["orman yangınları","wildfires"],["temiz su","clean water"]]},
+ {key:"climate",tr:"İklim",en:"climate change",terms:[["sera gazları","greenhouse gases"],["aşırı sıcaklar","heatwaves"],["deniz seviyesi","sea level"],["kuraklık","drought"],["karbon salımı","carbon emissions"],["uyum planları","adaptation plans"]]},
+ {key:"health",tr:"Sağlık",en:"health",terms:[["düzenli egzersiz","regular exercise"],["dengeli beslenme","a balanced diet"],["uyku düzeni","sleep patterns"],["aşılar","vaccines"],["ruh sağlığı","mental health"],["koruyucu hekimlik","preventive medicine"]]},
+ {key:"edu",tr:"Eğitim",en:"education",terms:[["uzaktan eğitim","distance learning"],["eleştirel düşünme","critical thinking"],["öğretmenler","teachers"],["sınav kaygısı","exam anxiety"],["dijital materyaller","digital materials"],["yaşam boyu öğrenme","lifelong learning"]]},
+ {key:"sci",tr:"Bilim",en:"science",terms:[["deneyler","experiments"],["hipotezler","hypotheses"],["bilimsel yöntem","the scientific method"],["hakemli makaleler","peer-reviewed articles"],["ölçüm hataları","measurement errors"],["laboratuvarlar","laboratories"]]},
+ {key:"space",tr:"Uzay",en:"space",terms:[["uydular","satellites"],["roketler","rockets"],["uzay teleskopları","space telescopes"],["Ay görevleri","lunar missions"],["uzay çöpü","space debris"],["Mars araştırmaları","Mars research"]]},
+ {key:"hist",tr:"Tarih",en:"history",terms:[["antik kentler","ancient cities"],["arkeolojik kazılar","archaeological excavations"],["el yazmaları","manuscripts"],["matbaa","the printing press"],["ticaret yolları","trade routes"],["müzeler","museums"]]},
+ {key:"culture",tr:"Kültür",en:"culture",terms:[["geleneksel müzik","traditional music"],["festivaller","festivals"],["sinema","cinema"],["yerel mutfak","local cuisine"],["el sanatları","handicrafts"],["çeviri edebiyatı","translated literature"]]},
+ {key:"biz",tr:"İş Dünyası",en:"business",terms:[["uzaktan çalışma","remote work"],["müşteri memnuniyeti","customer satisfaction"],["tedarik zincirleri","supply chains"],["girişimler","start-ups"],["proje yönetimi","project management"],["ekip iletişimi","team communication"]]},
+ {key:"econ",tr:"Ekonomi",en:"the economy",terms:[["enflasyon","inflation"],["faiz oranları","interest rates"],["işsizlik","unemployment"],["dış ticaret","foreign trade"],["tüketici harcamaları","consumer spending"],["kira fiyatları","rents"]]},
+ {key:"media",tr:"Medya",en:"the media",terms:[["sosyal medya","social media"],["yanlış bilgi","misinformation"],["podcastler","podcasts"],["haber doğrulama","fact-checking"],["video platformları","video platforms"],["medya okuryazarlığı","media literacy"]]},
+ {key:"daily",tr:"Günlük Yaşam",en:"daily life",terms:[["toplu taşıma","public transport"],["alışveriş alışkanlıkları","shopping habits"],["boş zaman","free time"],["komşuluk ilişkileri","relationships with neighbours"],["ev işleri","housework"],["hafta sonu planları","weekend plans"]]},
+ {key:"travel",tr:"Seyahat",en:"travel",terms:[["havalimanları","airports"],["otel rezervasyonları","hotel bookings"],["yerel rehberler","local guides"],["sürdürülebilir turizm","sustainable tourism"],["pasaport kontrolleri","passport checks"],["tren yolculukları","train journeys"]]},
+ {key:"sport",tr:"Spor",en:"sport",terms:[["takım çalışması","teamwork"],["antrenman planları","training plans"],["sakatlıklar","injuries"],["olimpiyat oyunları","the Olympic Games"],["taraftarlar","fans"],["spor bilimi","sports science"]]},
+ {key:"nature",tr:"Doğa ve Hayvanlar",en:"nature and wildlife",terms:[["nesli tükenen türler","endangered species"],["göçmen kuşlar","migratory birds"],["doğal yaşam alanları","natural habitats"],["arılar","bees"],["mercan resifleri","coral reefs"],["milli parklar","national parks"]]}
+];
+const FRAMES={
+1:[
+["Bugün {T} hakkında kısa bir metin okuyoruz.","Today we are reading a short text about {T}."],
+["{A} hayatımızı değiştirebilir.","{A} can change our lives."],
+["Birçok insan {A} hakkında konuşmayı sever.","Many people like to talk about {A}."],
+["Geçen hafta {B} hakkında bir haber izledim.","Last week, I watched a news report about {B}."],
+["Öğretmenimiz {A} ile ilgili basit bir örnek verdi.","Our teacher gave a simple example about {A}."],
+["Bu konu ilk başta zor görünebilir.","This topic may look difficult at first."],
+["Ama küçük adımlarla öğrenebiliriz.","But we can learn it with small steps."],
+["{B} gelecekte daha önemli olabilir.","{B} may become more important in the future."],
+["Arkadaşım {A} hakkında çok soru sordu.","My friend asked a lot of questions about {A}."],
+["Yeni kelimeleri bir deftere yazdım.","I wrote the new words in a notebook."],
+["Her gün biraz okumak faydalıdır.","Reading a little every day is useful."],
+["{T} hakkında daha fazla şey öğrenmek istiyorum.","I want to learn more about {T}."],
+["Bu yüzden her akşam on dakika çalışıyorum.","That is why I study for ten minutes every evening."],
+["Sonunda konuyu daha iyi anladım.","In the end, I understood the topic better."]],
+2:[
+["Son yıllarda {T} konusunda önemli gelişmeler yaşandı.","In recent years, there have been important developments in {T}."],
+["Uzmanlara göre {A} bu değişimin merkezinde yer alabilir.","According to experts, {A} could be at the centre of this change."],
+["Bununla birlikte, {B} ile ilgili soru işaretleri hâlâ devam ediyor.","However, questions about {B} still remain."],
+["Bazı araştırmacılar {A} konusunda daha fazla veri toplanması gerektiğini düşünüyor.","Some researchers think that more data should be collected on {A}."],
+["Öte yandan, kullanıcıların beklentileri de hızla değişiyor.","On the other hand, users' expectations are also changing quickly."],
+["Bu nedenle kurumlar uzun vadeli planlar hazırlamak zorunda kalıyor.","Therefore, organisations have to prepare long-term plans."],
+["Doğru yönetildiğinde {B} önemli fırsatlar yaratabilir.","When it is managed well, {B} could create important opportunities."],
+["Ancak yanlış kararlar maliyetleri artırabilir.","However, wrong decisions could increase costs."],
+["Bir rapora göre insanların çoğu {A} hakkında yeterli bilgiye sahip değil.","According to one report, most people do not have enough information about {A}."],
+["Bu durum eğitim ve iletişimin önemini gösteriyor.","This situation shows the importance of education and communication."],
+["Yerel yönetimler de bu süreçte rol oynayabilir.","Local governments could also play a role in this process."],
+["Örneğin, {B} hakkında ücretsiz seminerler düzenlenebilir.","For example, free seminars about {B} could be organised."],
+["Sonuç olarak, {T} konusundaki tartışmalar yakında bitecek gibi görünmüyor.","As a result, the debates on {T} do not seem likely to end soon."],
+["Yine de dikkatli bir yaklaşım daha iyi sonuçlar doğurabilir.","Still, a careful approach could lead to better results."]],
+3:[
+["{T} konusundaki tartışmalar artık yalnızca uzmanların ilgi alanı olmaktan çıkmıştır.","Debates on {T} are no longer the concern of experts alone."],
+["{A} ile ilgili kararlar, ekonomik, toplumsal ve etik boyutların birlikte ele alınmasını gerektirir.","Decisions concerning {A} require economic, social and ethical dimensions to be considered together."],
+["{B} ile ilgili kısa vadeli faydalar belirgin olsa da, uzun vadeli etkiler henüz tam olarak anlaşılamamıştır.","Although the short-term benefits of {B} may be clear, the long-term effects have not yet been fully understood."],
+["Politika yapıcıların, kanıta dayalı veriler ile kamuoyunun beklentileri arasında bir denge kurması gerekmektedir.","Policymakers need to strike a balance between evidence-based data and public expectations."],
+["Eleştirmenler, {A} hakkındaki iyimser öngörülerin çoğu zaman abartıldığını ileri sürmektedir.","Critics argue that optimistic forecasts about {A} are often exaggerated."],
+["Buna karşın destekçiler, temkinli bir uygulamanın riskleri önemli ölçüde azaltabileceğini savunmaktadır.","Supporters, by contrast, maintain that careful implementation could significantly reduce the risks."],
+["Asıl mesele, teknik olarak mümkün olanın toplumsal açıdan da kabul edilebilir olup olmadığıdır.","The real issue is whether what is technically possible is also socially acceptable."],
+["Bu bağlamda, {B} üzerine yürütülen bağımsız araştırmalar büyük önem taşımaktadır.","In this context, independent research on {B} is of great importance."],
+["Şeffaflık sağlanmadığı takdirde, kamuoyunun güveni kolaylıkla sarsılabilir.","Unless transparency is ensured, public trust can easily be undermined."],
+["Dahası, gelişmekte olan ülkeler bu dönüşümün maliyetlerini daha ağır biçimde hissedebilir.","Moreover, developing countries may feel the costs of this transformation more heavily."],
+["Dolayısıyla uluslararası iş birliği, isteğe bağlı bir seçenekten çok bir zorunluluk hâline gelmiştir.","Consequently, international cooperation has become a necessity rather than an optional choice."],
+["{A} alanında yapılacak yatırımların getirisi ancak on yıllar içinde ölçülebilecektir.","The return on investments in {A} will only be measurable over decades."],
+["Kısacası, {T} meselesi disiplinler arası bir bakış açısı olmadan anlaşılamaz.","In short, the issue of {T} cannot be understood without an interdisciplinary perspective."],
+["Bu nedenle okuyucunun, karşılaştığı iddiaları sorgulayan eleştirel bir tutum benimsemesi önerilir.","It is therefore recommended that readers adopt a critical attitude that questions the claims they encounter."]]
+};
+const TITLES={1:["{T}: Temel Bakış","{T} ve Ben","{T} Hakkında İlk Adımlar","Günlük Hayatta {T}"],2:["{T}: Fırsatlar ve Sorular","{T} Alanında Değişim","{T}: Uzmanlar Ne Diyor?","{T} ve Toplum"],3:["{T}: Eleştirel Bir Analiz","{T} Üzerine Tartışmalar","{T}: Riskler, Kanıtlar ve Politikalar","{T} ve Küresel Dönüşüm"]};
+const cap=(s,l)=>s?s.charAt(0).toLocaleUpperCase(l)+s.slice(1):s;
+function fill(f,lang,topic,a,b){const T=lang==="tr"?topic.tr.toLocaleLowerCase("tr"):topic.en;const A=lang==="tr"?a[0]:a[1],B=lang==="tr"?b[0]:b[1];return cap(f.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{B\}/g,B),lang==="tr"?"tr":"en")}
+const SEEDS=[{id:"seed-ev-nvh",topicKey:"ev",level:2,title:"Elektrikli Araçlarda Sessizliğin Bedeli",
+tr:["Elektrikli araçlar, içten yanmalı motorlu araçlara göre çok daha sessizdir.","Ancak motor sesi ortadan kalktığında başka sesler daha belirgin hâle gelir.","Lastik ve yol gürültüsü, özellikle yüksek hızlarda sürücünün dikkatini çeker.","Rüzgâr sesi de aynalar ve kapı contaları çevresinde duyulabilir.","Bu nedenle mühendisler araç tasarımının erken aşamasında NVH analizleri yapar.","Sonlu elemanlar modelleri, gövdenin hangi frekanslarda titreştiğini gösterebilir.","Bazı problemler fiziksel prototip üretilmeden önce çözülebilir.","Yine de simülasyon sonuçlarının test verileriyle doğrulanması gerekir.","Yalıtım malzemeleri sesi azaltır, fakat aracın ağırlığını ve maliyetini artırabilir.","Sonuç olarak iyi bir tasarım, konfor, menzil ve maliyet arasında denge kurar."],
+en:["Electric vehicles are much quieter than vehicles with internal combustion engines.","However, when engine noise disappears, other sounds become more noticeable.","Tyre and road noise attract the driver's attention, especially at high speeds.","Wind noise can also be heard around the mirrors and door seals.","Therefore, engineers carry out NVH analyses at an early stage of vehicle design.","Finite element models can show at which frequencies the body vibrates.","Some problems can be solved before a physical prototype is built.","Even so, simulation results need to be validated with test data.","Insulation materials reduce noise, but they can increase the vehicle's weight and cost.","In conclusion, a good design strikes a balance between comfort, range and cost."]}];
+function buildCorpus(){
+  const out=[];const byKey=Object.fromEntries(TOPICS.map(t=>[t.key,t]));
+  SEEDS.forEach(s=>out.push({...s,al:s.tr.map(x=>mkAl(x,null)),topic:byKey[s.topicKey].tr,origin:"Elle yazılmış özgün metin",col:"gen"}));
+  let i=0;
+  while(out.length<1000){
+    const topic=TOPICS[i%TOPICS.length],level=1+Math.floor(i/TOPICS.length)%3,variant=Math.floor(i/(TOPICS.length*3));
+    const L=LEVELS[level],span=L.max-L.min+1,n=L.min+((variant*7+i*3)%span);
+    const frames=FRAMES[level],tr=[],en=[],al=[];
+    for(let j=0;j<n;j++){
+      const f=frames[(j+variant*3)%frames.length],k=Math.floor((j+variant*3)/frames.length);
+      const a=topic.terms[(j+k+variant)%6],b=topic.terms[(j+k+variant+2)%6];
+      tr.push(fill(f[0],"tr",topic,a,b));en.push(fill(f[1],"en",topic,a,b));al.push(mkAl(f[0],topic,a,b));
+    }
+    const tt=TITLES[level][variant%4].replace("{T}",topic.tr);
+    out.push({id:`g-${topic.key}-${level}-${variant}`,topicKey:topic.key,topic:topic.tr,level,title:`${tt} · ${variant+1}`,tr,en,al,origin:"Özgün, şablonla üretilmiş çalışma metni",col:"gen"});
+    i++;
+  }
+  return out;
+}
+/* ===== AKADEMİK ÇALIŞMALAR (300) — özgün metinler; yalnızca akademik kelime listesindeki kelimeler esas alınmıştır ===== */
+const ACAD_FIELDS=[
+ {key:"a-psy",tr:"Psikoloji",en:"psychology",terms:[["bilişsel süreçler","cognitive processes"],["motivasyon","motivation"],["kısa süreli bellek","short-term memory"],["stres tepkileri","stress responses"],["karar verme","decision-making"],["sosyal etki","social influence"]]},
+ {key:"a-soc",tr:"Sosyoloji",en:"sociology",terms:[["kentleşme","urbanisation"],["toplumsal eşitsizlik","social inequality"],["göç hareketleri","migration patterns"],["aile yapısı","family structure"],["sosyal ağlar","social networks"],["kültürel kimlik","cultural identity"]]},
+ {key:"a-eco",tr:"İktisat",en:"economics",terms:[["piyasa rekabeti","market competition"],["gelir dağılımı","income distribution"],["kamu harcamaları","public expenditure"],["verimlilik artışı","productivity growth"],["küresel ticaret","global trade"],["tüketici davranışı","consumer behaviour"]]},
+ {key:"a-bio",tr:"Biyoloji",en:"biology",terms:[["genetik çeşitlilik","genetic diversity"],["hücre zarı","the cell membrane"],["evrimsel uyum","evolutionary adaptation"],["enzim etkinliği","enzyme activity"],["bağışıklık sistemi","the immune system"],["ekosistem dengesi","ecosystem balance"]]},
+ {key:"a-phy",tr:"Fizik ve Mühendislik",en:"physics and engineering",terms:[["enerji dönüşümü","energy conversion"],["malzeme yorulması","material fatigue"],["akışkanlar dinamiği","fluid dynamics"],["doğal frekans","natural frequency"],["ısı transferi","heat transfer"],["yapısal bütünlük","structural integrity"]]},
+ {key:"a-ling",tr:"Dilbilim",en:"linguistics",terms:[["dil edinimi","language acquisition"],["sözcük dağarcığı","vocabulary"],["iki dillilik","bilingualism"],["söylem analizi","discourse analysis"],["anlam bilimi","semantics"],["çeviri stratejileri","translation strategies"]]},
+ {key:"a-edu",tr:"Eğitim Bilimleri",en:"educational science",terms:[["öğrenci başarısı","student achievement"],["ölçme ve değerlendirme","assessment"],["öğretim yöntemleri","teaching methods"],["öğrenme motivasyonu","learning motivation"],["müfredat tasarımı","curriculum design"],["geri bildirim","feedback"]]},
+ {key:"a-hlth",tr:"Halk Sağlığı",en:"public health",terms:[["bulaşıcı hastalıklar","infectious diseases"],["fiziksel aktivite","physical activity"],["sağlık hizmetlerine erişim","access to health care"],["beslenme alışkanlıkları","dietary habits"],["risk faktörleri","risk factors"],["erken tanı","early diagnosis"]]},
+ {key:"a-cs",tr:"Bilgisayar Bilimi",en:"computer science",terms:[["makine öğrenmesi","machine learning"],["veri güvenliği","data security"],["algoritma verimliliği","algorithm efficiency"],["dağıtık sistemler","distributed systems"],["kullanıcı gizliliği","user privacy"],["yazılım doğrulama","software verification"]]},
+ {key:"a-env",tr:"Çevre Bilimi",en:"environmental science",terms:[["karbon döngüsü","the carbon cycle"],["su kaynakları","water resources"],["toprak erozyonu","soil erosion"],["yenilenebilir kaynaklar","renewable resources"],["hava kalitesi","air quality"],["habitat kaybı","habitat loss"]]}
+];
+const ACAD_FRAMES={
+1:[
+["Bu metin {T} alanındaki temel bir konuyu ele alıyor.","This text discusses a basic topic in {T}."],
+["Araştırmacılar {A} konusunu birçok yıl boyunca inceledi.","Researchers have studied {A} for many years."],
+["Bir araştırmanın ilk adımı açık bir soru sormaktır.","The first step of a research study is to ask a clear question."],
+["Daha sonra araştırmacılar veri toplar.","Then, researchers collect data."],
+["Veriler, {A} hakkında önemli bilgiler sağlayabilir.","The data can provide important information about {A}."],
+["Bazı sonuçlar {B} ile bir bağlantı olduğunu gösteriyor.","Some results indicate that there is a link with {B}."],
+["Ancak bir bağlantı her zaman bir neden anlamına gelmez.","However, a link does not always mean a cause."],
+["Bu nedenle bilim insanları sonuçlarını dikkatle yorumlamalıdır.","Therefore, scientists must interpret their results carefully."],
+["İyi bir araştırma, kaynaklarını açıkça belirtir.","A good study clearly states its sources."],
+["Öğrenciler de bu yöntemi kendi ödevlerinde kullanabilir.","Students can also use this method in their own assignments."],
+["Örneğin, {B} hakkında küçük bir anket yapabilirler.","For example, they can conduct a small survey about {B}."],
+["Sonuçlar, grafikler ve tablolar ile sunulabilir.","The results can be presented with graphs and tables."],
+["Kısacası, araştırma merak ile başlayan bir süreçtir.","In short, research is a process that begins with curiosity."],
+["Bu süreç, {T} alanında yeni bilgiler üretmemize yardım eder.","This process helps us to generate new knowledge in {T}."]],
+2:[
+["Son yıllarda {T} alanında {A} konusuna yönelik ilgi önemli ölçüde arttı.","In recent years, interest in {A} has increased significantly in the field of {T}."],
+["Bu çalışmanın amacı, {A} ile {B} arasındaki ilişkiyi analiz etmektir.","The aim of this study is to analyse the relationship between {A} and {B}."],
+["Araştırmacılar, nicel ve nitel yöntemleri birleştiren bir yaklaşım benimsedi.","The researchers adopted an approach that combines quantitative and qualitative methods."],
+["Veriler, rastgele seçilen geniş bir örneklemden elde edildi.","The data were obtained from a large, randomly selected sample."],
+["Bulgular, iki değişken arasında anlamlı bir korelasyon olduğunu göstermektedir.","The findings indicate a significant correlation between the two variables."],
+["Bununla birlikte, korelasyon tek başına nedensellik kanıtı sayılmaz.","Nevertheless, correlation alone does not constitute evidence of causality."],
+["Bu nedenle sonuçların farklı bağlamlarda test edilmesi gerekir.","Therefore, the results need to be tested in different contexts."],
+["Öte yandan, çalışmanın bazı sınırlılıkları da bulunmaktadır.","On the other hand, the study also has some limitations."],
+["Örneğin, katılımcıların çoğu aynı bölgeden seçilmiştir.","For instance, most of the participants were selected from the same region."],
+["Bu durum, bulguların genellenebilirliğini sınırlayabilir.","This situation may limit the generalisability of the findings."],
+["Yine de çalışma, {B} konusunda değerli kanıtlar sunmaktadır.","Even so, the study provides valuable evidence on {B}."],
+["Sonuçlar, politika yapıcılar için önemli çıkarımlar içermektedir.","The results have important implications for policymakers."],
+["Gelecekteki araştırmaların daha kapsamlı bir veri seti kullanması önerilmektedir.","It is recommended that future research should use a more comprehensive data set."],
+["Sonuç olarak, {A} konusunun daha ayrıntılı biçimde incelenmesi gerekmektedir.","In conclusion, {A} needs to be examined in more detail."]],
+3:[
+["{T} alanındaki mevcut literatür, {A} kavramını çoğunlukla dar bir kuramsal çerçeve içinde ele almıştır.","The existing literature in {T} has largely addressed the concept of {A} within a narrow theoretical framework."],
+["Bu çalışma, söz konusu boşluğu gidermek amacıyla bütüncül bir model önermektedir.","This study proposes a holistic model in order to address this gap."],
+["Temel hipotez, {A} ile {B} arasındaki ilişkinin bağlama bağlı olarak farklılaştığıdır.","The central hypothesis is that the relationship between {A} and {B} varies depending on the context."],
+["Araştırma tasarımı, üç farklı veri kaynağının sistematik olarak karşılaştırılmasına dayanmaktadır.","The research design is based on a systematic comparison of three distinct data sources."],
+["Ampirik bulgular, önceki çalışmaların öngörülerini kısmen desteklemektedir.","The empirical findings partially support the predictions of previous studies."],
+["Ancak bazı sonuçlar, yerleşik varsayımların yeniden değerlendirilmesi gerektiğini ima etmektedir.","However, some results imply that established assumptions should be reassessed."],
+["Özellikle {B} değişkeninin etkisi beklenenden çok daha belirgin çıkmıştır.","In particular, the effect of {B} proved to be far more pronounced than expected."],
+["Bu bulgu, mevcut paradigmanın açıklama gücünü sorgulamaktadır.","This finding calls into question the explanatory power of the prevailing paradigm."],
+["Bununla birlikte, ölçüm araçlarının geçerliliği ve güvenilirliği titizlikle sınanmıştır.","Nevertheless, the validity and reliability of the measurement instruments were rigorously tested."],
+["Olası yanlılık kaynaklarını en aza indirmek için çeşitli kontrol değişkenleri modele dahil edilmiştir.","Several control variables were incorporated into the model in order to minimise potential sources of bias."],
+["Elde edilen sonuçlar, {A} olgusunun tek bir etkene indirgenemeyeceğini açıkça ortaya koymaktadır.","The results clearly demonstrate that the phenomenon of {A} cannot be reduced to a single factor."],
+["Dolayısıyla, disiplinler arası yaklaşımlar bu alanda vazgeçilmez hâle gelmiştir.","Consequently, interdisciplinary approaches have become indispensable in this field."],
+["Çalışmanın kuramsal katkısı, kavramlar arasındaki dinamik etkileşimi görünür kılmasıdır.","The theoretical contribution of the study lies in making the dynamic interaction between concepts visible."],
+["Uygulamaya yönelik çıkarımlar ise kanıta dayalı karar alma süreçlerini güçlendirebilir.","The practical implications, in turn, may strengthen evidence-based decision-making processes."]]
+};
+const ACAD_TITLES={1:["{T}: Araştırmaya Giriş","{T}: Temel Kavramlar","{T} Alanında İlk Okuma"],2:["{T}: Bir Araştırma Özeti","{T} Alanında Yeni Bulgular","{T}: Yöntem ve Sonuçlar"],3:["{T}: Kuramsal Bir Değerlendirme","{T} Literatüründe Eleştirel Bir Bakış","{T}: Paradigma ve Kanıt"]};
+const ACAD_LEN={1:[10,14],2:[14,30],3:[25,45]};
+function buildAcad(){const out=[];let i=0;
+  while(out.length<300){const f=ACAD_FIELDS[i%10],level=1+Math.floor(i/10)%3,v=Math.floor(i/30);
+    const [mn,mx]=ACAD_LEN[level],n=mn+((v*5+i)%(mx-mn+1)),fr=ACAD_FRAMES[level],tr=[],en=[],al=[];
+    for(let j=0;j<n;j++){const k=Math.floor((j+v*2)/fr.length),p=fr[(j+v*2)%fr.length],a=f.terms[(j+k+v)%6],b=f.terms[(j+k+v+3)%6];
+      tr.push(fill(p[0],"tr",f,a,b));en.push(fill(p[1],"en",f,a,b));al.push(mkAl(p[0],f,a,b));}
+    out.push({id:`ac-${f.key}-${level}-${v}`,topicKey:f.key,topic:"Akademik · "+f.tr,level,title:`${ACAD_TITLES[level][v%3].replace("{T}",f.tr)} · ${v+1}`,tr,en,al,origin:"Özgün akademik çalışma metni (akademik kelime odaklı)",col:"acad"});i++}
+  return out}
+/* Akademik kelimeler için kısa Türkçe karşılıklar (kendi hazırladığımız sözlük) */
+const GLOSS={analyse:"analiz etmek",analysis:"analiz",approach:"yaklaşım",adopt:"benimsemek",assess:"değerlendirmek",assessment:"değerlendirme",assumption:"varsayım",bias:"yanlılık",category:"kategori",causality:"nedensellik",comprehensive:"kapsamlı",concept:"kavram",consequently:"sonuç olarak",constitute:"oluşturmak",context:"bağlam",contribution:"katkı",correlation:"korelasyon, ilişki",data:"veri",demonstrate:"göstermek, kanıtlamak",derive:"türetmek, elde etmek",design:"tasarım",distinct:"farklı, ayrı",dynamic:"dinamik",empirical:"ampirik, deneysel",establish:"kurmak, yerleştirmek",evidence:"kanıt",factor:"etken",finding:"bulgu",framework:"çerçeve",generate:"üretmek",hypothesis:"hipotez",implication:"çıkarım, sonuç",imply:"ima etmek",indicate:"göstermek, işaret etmek",instrument:"araç, ölçek",interaction:"etkileşim",interpret:"yorumlamak",method:"yöntem",methodology:"yöntem bilim",nevertheless:"yine de",obtain:"elde etmek",paradigm:"paradigma",participant:"katılımcı",phenomenon:"olgu",policy:"politika",potential:"olası, potansiyel",predict:"öngörmek",previous:"önceki",process:"süreç",qualitative:"nitel",quantitative:"nicel",reliability:"güvenilirlik",research:"araştırma",significant:"anlamlı, önemli",significantly:"önemli ölçüde",source:"kaynak",survey:"anket",sample:"örneklem",systematic:"sistematik",theoretical:"kuramsal",validity:"geçerlilik",variable:"değişken",vary:"değişmek",impact:"etki",aspect:"yön, boyut",obtain:"elde etmek",distribution:"dağılım",parameter:"parametre",domain:"alan",cognitive:"bilişsel",linguistic:"dilbilimsel",interval:"aralık",discourse:"söylem",algorithm:"algoritma",transformation:"dönüşüm",spatial:"uzamsal",hence:"bu nedenle",whereas:"oysa",furthermore:"ayrıca",moreover:"dahası",thereby:"böylece",substantial:"kayda değer",criteria:"ölçütler",infer:"çıkarım yapmak",attribute:"atfetmek; özellik",require:"gerektirmek",proportion:"oran",region:"bölge",economy:"ekonomi",environment:"çevre",individual:"birey",issue:"konu, sorun",major:"büyük, başlıca",occur:"meydana gelmek",percent:"yüzde",period:"dönem",principle:"ilke",role:"rol",section:"bölüm",structure:"yapı",theory:"kuram",function:"işlev",identify:"belirlemek",legal:"yasal",specific:"belirli",estimate:"tahmin etmek",evaluate:"değerlendirmek",create:"yaratmak",affect:"etkilemek",benefit:"fayda",culture:"kültür",consist:"oluşmak",assume:"varsaymak",authority:"otorite",available:"mevcut",concept:"kavram",define:"tanımlamak",establish:"kurmak",export:"ihracat",income:"gelir",involve:"içermek",labour:"emek",occupy:"işgal etmek",respond:"yanıt vermek",similar:"benzer",vary:"değişmek",achieve:"başarmak",acquisition:"edinim",chemical:"kimyasal",community:"topluluk",complex:"karmaşık",conclude:"sonuca varmak",conduct:"yürütmek",consequence:"sonuç",construct:"inşa etmek",consumer:"tüketici",credit:"kredi",distinction:"ayrım",element:"öğe",equation:"denklem",feature:"özellik",final:"son",focus:"odak",impact:"etki",injury:"yaralanma",institute:"enstitü",invest:"yatırım yapmak",item:"öğe",journal:"dergi",maintain:"sürdürmek; savunmak",normal:"normal",obtain:"elde etmek",participate:"katılmak",perceive:"algılamak",positive:"olumlu",potential:"potansiyel",previous:"önceki",primary:"birincil",purchase:"satın almak",range:"aralık",regulation:"düzenleme",relevant:"ilgili",resource:"kaynak",restrict:"kısıtlamak",secure:"güvence altına almak",seek:"aramak",select:"seçmek",site:"yer",strategy:"strateji",survey:"anket",text:"metin",tradition:"gelenek",transfer:"aktarım",generalisability:"genellenebilirlik",immigrant:"göçmen",immigration:"göç",technology:"teknoloji",sufficient:"yeterli",virtually:"neredeyse",unrestricted:"sınırsız"};
+const AWL_WORDS=["repertoire", "obtain", "distribution", "parameter", "aspect", "dynamic", "impact", "domain", "publish", "denote", "authority", "semantic", "matrix", "linear", "cognitive", "graph", "correlation", "linguistic", "acid", "induce", "velocity", "interval", "discourse", "finite", "stimulus", "vector", "electron", "receptor", "theorem", "algorithm", "fluid", "developmental", "bound", "molecular", "transformation", "spatial", "translation", "membrane", "neuron", "simulation", "lexical", "regime", "variance", "molecule", "marker", "empirical", "statistical", "vowel", "equilibrium", "intensity", "regression", "diagnosis", "identification", "node", "candidate", "partial", "correlate", "mortality", "antibody", "temporal", "particle", "duration", "behavioral", "consumption", "bilingual", "sensitivity", "similarity", "optimal", "explicit", "mutation", "colonial", "phonological", "spectrum", "nucleus", "onset", "integration", "dominant", "pathway", "coordinate", "calculation", "precede", "subset", "syntactic", "orientation", "proposition", "inequality", "identical", "prevalence", "differential", "generalize", "beam", "pulse", "norm", "trait", "prediction", "correspondence", "essentially", "syllable", "chromosome", "infect", "magnetic", "configuration", "numerical", "namely", "intermediate", "transmission", "dose", "occurrence", "maternal", "axis", "rational", "locus", "elite", "approximation", "thesis", "classification", "threshold", "syndrome", "comparative", "activate", "adolescent", "vocabulary", "encode", "utterance", "facilitate", "incidence", "induction", "trajectory", "manuscript", "commonly", "grammatical", "accuracy", "adaptation", "amplitude", "cortex", "minimal", "systematic", "horizontal", "projection", "synthesis", "diameter", "cone", "dependence", "organism", "emergence", "overlap", "substitution", "explicitly", "evident", "conceptual", "detection", "interact", "neural", "chronic", "integral", "enzyme", "conference", "conception", "ideology", "sperm", "quantitative", "sphere", "instability", "mediate", "specification", "classify", "physician", "computation", "indicator", "variant", "evolutionary", "feedback", "collective", "arbitrary", "fraction", "estimation", "nonlinear", "compact", "deviation", "diagram", "tropical", "morphology", "thereby", "syntax", "defect", "separation", "convergence", "valid", "interface", "radiation", "embed", "vertical", "acute", "utility", "complement", "verbal", "aggregate", "equality", "corpus", "organ", "gradient", "methodology", "entity", "tumor", "fiber", "paradigm", "psychology", "infinite", "diverse", "diagnostic", "continuity", "variability", "notation", "probe", "migration", "mathematical", "likelihood", "comparable", "magnitude", "array", "inclusion", "emission", "inference", "consciousness", "simultaneously", "disturbance", "hierarchy", "rotation", "periodic", "validity", "archaeology", "atom", "modification", "partition", "initiate", "autonomy", "inhibit", "consonant", "biology", "scenario", "conditional", "contrary", "discrete", "classroom", "morphological", "lateral", "injection", "effectiveness", "insect", "logical", "calculus", "longitudinal", "usage", "neutral", "client", "marginal", "characterization", "ethical", "superior", "approximate", "composer", "singular", "converge", "fetal", "comprehension", "implicit", "oxygen", "formulation", "dialect", "colony", "immune", "algebra", "derivative", "appendix", "overview", "diffusion", "specimen", "assert", "widespread", "competence", "residual", "fusion", "conservation", "constrain", "differentiate", "virtue", "amino", "partially", "preliminary", "philosophical", "transaction", "prominent", "indigenous", "render", "independently", "symbolic", "utilize", "physiological", "indirect", "assembly", "calcium", "strictly", "psychiatric", "unity", "critique", "differentiation", "closure", "minimize", "selective", "availability", "depict", "parental", "ritual", "fertility", "adjacent", "inhibition", "observer", "readily", "questionnaire", "generalization", "qualitative", "locally", "transcription", "nutrient", "reinforce", "simulate", "statistically", "dense", "ecology", "null", "terminal", "informal", "discharge", "adaptive", "ecological", "protocol", "progressive", "aesthetic", "agriculture", "exploit", "practitioner", "occupation", "equivalence", "pragmatic", "productivity", "reproduce", "commentary", "residue", "unstable", "consensus", "simplify", "radius", "artificial", "harvest", "suicide", "monkey", "habitat", "assignment", "replicate", "mechanical", "disability", "cattle", "purely", "contradiction", "scatter", "problematic", "correction", "linguistics", "hormone", "primitive", "ethics", "accumulation", "static", "consent", "substrate", "straightforward", "discrimination", "separately", "randomize", "sensory", "confine", "mineral", "peripheral", "spontaneous", "reliability", "clone", "orient", "elaborate", "nominal", "insert", "reproduction", "dominance", "allocation", "productive", "decay", "conscious", "thickness", "transmit", "conceive", "offspring", "resemble", "circulation", "correctly", "necessity", "metaphor", "tract", "subjective", "accumulate", "rejection", "maximize", "replacement", "complication", "plural", "valve", "absorption", "monetary", "thermal", "likewise", "tolerance", "articulate", "donor", "flux", "mobility", "manipulation", "elevate", "nationalism", "analogy", "adverse", "nitrogen", "plausible", "vein", "controversy", "rewrite", "manual", "strategic", "peasant", "absorb", "sketch", "justification", "lifetime", "binary", "definite", "contour", "execution", "rhythm", "ultimate", "dictionary", "constitution", "acceleration", "undermine", "disadvantage", "myth", "strand", "unify", "randomly", "philosopher", "pronounce", "workshop", "objection", "meaningful", "wavelength", "diagnose", "accent", "realm", "replication", "basin", "admission", "interestingly", "clarify", "grid", "curriculum", "displacement", "coherent", "standardize", "civilization", "positively", "bacterial", "deficiency", "legitimate", "sophisticate", "accelerate", "exponential", "formally", "socially", "accurately", "influential", "progression", "essence", "cylinder", "scholarship", "sodium", "predominantly", "impulse", "oscillation", "theorist", "manipulate", "alliance", "crystal", "importantly", "drift", "fossil", "dimensional", "resistant", "punishment", "rhetoric", "artifact", "carrier", "surgical", "coordination", "turbulent", "quantum", "sediment", "conserve", "primer", "bulk", "terminology", "vegetation", "triangle", "traditionally", "execute", "intensive", "reconstruct", "broadly", "metabolism", "revolutionary", "merge", "dilemma", "motif", "motive", "subtle", "clinic", "allocate", "hydrogen", "dissertation", "susceptible", "architect", "coronary", "breakdown", "inject", "economist", "momentum", "polar", "backward", "multiply", "morality", "communicative", "physically", "rainfall", "politically", "invasion", "inevitably", "capitalism", "expertise", "inferior", "actively", "quotation", "composite", "historically", "textbook", "bundle", "elementary", "capitalist", "flexibility", "initiation", "realistic", "horizon", "consultation", "freely", "rotate", "commodity", "elevation", "intervene", "compensate", "atomic", "trivial", "stance", "stabilize", "profound", "whereby", "ancestor", "genetics", "proton", "phosphate", "gravity", "puzzle", "respiratory", "elimination", "corruption", "circulate", "obscure", "contradict", "interfere", "trauma", "upward", "gross", "optical", "communist", "continent", "physics", "viable", "limb", "retrieve", "presume", "rationality", "stereotype", "slavery", "artistic", "anthropology", "faculty", "antibiotic", "portray", "chemistry", "sexuality", "axiom", "fracture", "transplant", "shortly", "epidemic", "inversion", "irrelevant", "mechanic", "epidemiology", "dissolve", "fatigue", "nonetheless", "bargain", "infectious", "individually", "psychologist", "irrigation", "treaty", "rehabilitation", "illusion", "optimum", "paradox", "kidney", "predator", "migrate", "infinity", "shallow", "fundamentally", "synthetic", "hepatitis", "bubble", "bracket", "elasticity", "contradictory", "sensation", "sustainable", "elastic", "machinery", "dictate", "vitamin", "incline", "leisure", "enforcement", "cyclic", "friction", "parenthesis", "potassium", "reactive", "genetically", "bacteria", "wisdom", "realism", "deliberately", "chemotherapy", "surplus", "capillary", "directive", "globalization", "portfolio", "monopoly", "lifestyle", "invert", "thread", "transcribe", "dilute", "economically", "critically", "secrete", "plantation", "prejudice", "onwards", "helix", "interrupt", "domination", "undergraduate", "soluble", "innate", "dioxide", "confound", "competent", "degrade", "layout", "fabric", "container", "fungus", "reservoir", "footnote", "bodily", "niche", "vague", "afterward", "antiquity", "unemployed", "toxic", "punish", "forum", "overhead", "republic", "processor", "goodness", "audit", "comply", "legend", "abdominal", "outlet", "precipitation", "founds", "invade", "interviewer", "planner", "supposedly", "emperor", "altitude", "gauge", "transparency", "chloride", "sensible", "destination", "precipitate", "painful", "industrialization", "seminar", "conduction", "subtract", "facet", "splice", "incumbent", "biodiversity", "chunk", "credibility", "aluminum", "liable", "marble", "pesticide", "technically", "criteria", "fringe", "messenger", "biologist", "connotation", "delta", "tremendous", "marrow", "surgeon", "instinct", "industrialize", "denominator", "stripe", "junior", "solvent", "kilometer", "cinema", "indifference", "powder", "solute", "dissection", "censor", "portrayal", "statistics", "acidic", "uplift", "congruent", "parcel", "lecturer", "poster", "photographic", "auction", "barrel", "mentor", "nicely", "watershed", "oxidize", "mercury", "headquarter", "phenomenal", "multinational", "bizarre", "specialty", "socialize", "enormously", "novice", "campus", "clever", "sometime", "bucket", "recipe", "airplane", "deflection", "deceive", "syllabus", "factorial", "descriptor", "semester", "underneath", "reactor", "herbicide", "missile", "memorize", "scripture", "bullet", "postgraduate", "artwork", "pardon", "millimeter", "incredible", "halfway", "deadline", "ridiculous", "homework", "volition", "tricky", "shuttle", "aerosol", "athletic", "terribly", "unintelligible", "scroll", "sponsorship", "connector", "incredibly", "entrant", "handout", "applause", "demonstrator", "calculator", "sneeze", "stadium", "descendant", "hypothesis", "stochastic", "covariance", "normalize", "normalization", "ontology", "epistemology", "phenomenology", "ethnography", "interdisciplinary", "robust", "robustness", "heterogeneous", "homogeneous", "endogenous", "exogenous", "parsimony", "mediator", "moderator", "operationalize", "catalyst", "catalysis", "isotope", "polymer", "topology", "eigenvalue", "eigenvector", "determinant", "tensor", "cohort", "causality", "counterfactual", "metacognition", "heuristic", "homeostasis", "phylogeny", "ontogeny"];
+/* Yapı yapı renk eşlemesi: aynı numaralı parçalar aynı anlamı taşır. Anahtar = çerçevenin Türkçe şablonu. */
+const ALIGN={
+"Bugün {T} hakkında kısa bir metin okuyoruz.":["[1Bugün] [2{T} hakkında] [3kısa bir metin] [4okuyoruz].","[1Today] [4we are reading] [3a short text] [2about {T}]."],
+"{A} hayatımızı değiştirebilir.":["[1{A}] [2hayatımızı] [3değiştirebilir].","[1{A}] [3can change] [2our lives]."],
+"Birçok insan {A} hakkında konuşmayı sever.":["[1Birçok insan] [2{A} hakkında] [3konuşmayı] [4sever].","[1Many people] [4like] [3to talk] [2about {A}]."],
+"Geçen hafta {B} hakkında bir haber izledim.":["[1Geçen hafta] [2{B} hakkında] [3bir haber] [4izledim].","[1Last week], [4I watched] [3a news report] [2about {B}]."],
+"Öğretmenimiz {A} ile ilgili basit bir örnek verdi.":["[1Öğretmenimiz] [2{A} ile ilgili] [3basit bir örnek] [4verdi].","[1Our teacher] [4gave] [3a simple example] [2about {A}]."],
+"Bu konu ilk başta zor görünebilir.":["[1Bu konu] [2ilk başta] [3zor] [4görünebilir].","[1This topic] [4may look] [3difficult] [2at first]."],
+"Ama küçük adımlarla öğrenebiliriz.":["[1Ama] [2küçük adımlarla] [3öğrenebiliriz].","[1But] [3we can learn it] [2with small steps]."],
+"{B} gelecekte daha önemli olabilir.":["[1{B}] [2gelecekte] [3daha önemli] [4olabilir].","[1{B}] [4may become] [3more important] [2in the future]."],
+"Arkadaşım {A} hakkında çok soru sordu.":["[1Arkadaşım] [2{A} hakkında] [3çok soru] [4sordu].","[1My friend] [4asked] [3a lot of questions] [2about {A}]."],
+"Yeni kelimeleri bir deftere yazdım.":["[1Yeni kelimeleri] [2bir deftere] [3yazdım].","[3I wrote] [1the new words] [2in a notebook]."],
+"Her gün biraz okumak faydalıdır.":["[1Her gün] [2biraz okumak] [3faydalıdır].","[2Reading a little] [1every day] [3is useful]."],
+"{T} hakkında daha fazla şey öğrenmek istiyorum.":["[1{T} hakkında] [2daha fazla şey] [3öğrenmek] [4istiyorum].","[4I want] [3to learn] [2more] [1about {T}]."],
+"Bu yüzden her akşam on dakika çalışıyorum.":["[1Bu yüzden] [2her akşam] [3on dakika] [4çalışıyorum].","[1That is why] [4I study] [3for ten minutes] [2every evening]."],
+"Sonunda konuyu daha iyi anladım.":["[1Sonunda] [2konuyu] [3daha iyi] [4anladım].","[1In the end], [4I understood] [2the topic] [3better]."],
+"Son yıllarda {T} konusunda önemli gelişmeler yaşandı.":["[1Son yıllarda] [2{T} konusunda] [3önemli gelişmeler] [4yaşandı].","[1In recent years], [4there have been] [3important developments] [2in {T}]."],
+"Uzmanlara göre {A} bu değişimin merkezinde yer alabilir.":["[1Uzmanlara göre] [2{A}] [3bu değişimin] [4merkezinde] [5yer alabilir].","[1According to experts], [2{A}] [5could be] [4at the centre] [3of this change]."],
+"Bununla birlikte, {B} ile ilgili soru işaretleri hâlâ devam ediyor.":["[1Bununla birlikte], [2{B} ile ilgili] [3soru işaretleri] [4hâlâ] [5devam ediyor].","[1However], [3questions] [2about {B}] [4still] [5remain]."],
+"Bazı araştırmacılar {A} konusunda daha fazla veri toplanması gerektiğini düşünüyor.":["[1Bazı araştırmacılar] [2{A} konusunda] [3daha fazla veri] [4toplanması gerektiğini] [5düşünüyor].","[1Some researchers] [5think that] [3more data] [4should be collected] [2on {A}]."],
+"Öte yandan, kullanıcıların beklentileri de hızla değişiyor.":["[1Öte yandan], [2kullanıcıların beklentileri] [3de] [4hızla] [5değişiyor].","[1On the other hand], [2users' expectations] [5are] [3also] [5changing] [4quickly]."],
+"Bu nedenle kurumlar uzun vadeli planlar hazırlamak zorunda kalıyor.":["[1Bu nedenle] [2kurumlar] [3uzun vadeli planlar] [4hazırlamak] [5zorunda kalıyor].","[1Therefore], [2organisations] [5have to] [4prepare] [3long-term plans]."],
+"Doğru yönetildiğinde {B} önemli fırsatlar yaratabilir.":["[1Doğru yönetildiğinde] [2{B}] [3önemli fırsatlar] [4yaratabilir].","[1When it is managed well], [2{B}] [4could create] [3important opportunities]."],
+"Ancak yanlış kararlar maliyetleri artırabilir.":["[1Ancak] [2yanlış kararlar] [3maliyetleri] [4artırabilir].","[1However], [2wrong decisions] [4could increase] [3costs]."],
+"Bir rapora göre insanların çoğu {A} hakkında yeterli bilgiye sahip değil.":["[1Bir rapora göre] [2insanların çoğu] [3{A} hakkında] [4yeterli bilgiye] [5sahip değil].","[1According to one report], [2most people] [5do not have] [4enough information] [3about {A}]."],
+"Bu durum eğitim ve iletişimin önemini gösteriyor.":["[1Bu durum] [2eğitim ve iletişimin] [3önemini] [4gösteriyor].","[1This situation] [4shows] [3the importance] [2of education and communication]."],
+"Yerel yönetimler de bu süreçte rol oynayabilir.":["[1Yerel yönetimler] [2de] [3bu süreçte] [4rol oynayabilir].","[1Local governments] [4could] [2also] [4play a role] [3in this process]."],
+"Örneğin, {B} hakkında ücretsiz seminerler düzenlenebilir.":["[1Örneğin], [2{B} hakkında] [3ücretsiz seminerler] [4düzenlenebilir].","[1For example], [3free seminars] [2about {B}] [4could be organised]."],
+"Sonuç olarak, {T} konusundaki tartışmalar yakında bitecek gibi görünmüyor.":["[1Sonuç olarak], [2{T} konusundaki] [3tartışmalar] [4yakında] [5bitecek] [6gibi görünmüyor].","[1As a result], [3the debates] [2on {T}] [6do not seem likely] [5to end] [4soon]."],
+"Yine de dikkatli bir yaklaşım daha iyi sonuçlar doğurabilir.":["[1Yine de] [2dikkatli bir yaklaşım] [3daha iyi sonuçlar] [4doğurabilir].","[1Still], [2a careful approach] [4could lead to] [3better results]."],
+"{T} konusundaki tartışmalar artık yalnızca uzmanların ilgi alanı olmaktan çıkmıştır.":["[1{T} konusundaki] [2tartışmalar] [3artık] [4yalnızca uzmanların] [5ilgi alanı] [3olmaktan çıkmıştır].","[2Debates] [1on {T}] [3are no longer] [5the concern] [4of experts alone]."],
+"{A} ile ilgili kararlar, ekonomik, toplumsal ve etik boyutların birlikte ele alınmasını gerektirir.":["[1{A} ile ilgili] [2kararlar], [3ekonomik, toplumsal ve etik boyutların] [4birlikte] [5ele alınmasını] [6gerektirir].","[2Decisions] [1concerning {A}] [6require] [3economic, social and ethical dimensions] [5to be considered] [4together]."],
+"{B} ile ilgili kısa vadeli faydalar belirgin olsa da, uzun vadeli etkiler henüz tam olarak anlaşılamamıştır.":["[1{B} ile ilgili] [2kısa vadeli faydalar] [3belirgin] [4olsa da], [5uzun vadeli etkiler] [6henüz] [7tam olarak] [8anlaşılamamıştır].","[4Although] [2the short-term benefits] [1of {B}] [4may be] [3clear], [5the long-term effects] [8have] [6not yet] [8been] [7fully] [8understood]."],
+"Politika yapıcıların, kanıta dayalı veriler ile kamuoyunun beklentileri arasında bir denge kurması gerekmektedir.":["[1Politika yapıcıların], [3kanıta dayalı veriler] [3ile] [4kamuoyunun beklentileri] [5arasında] [6bir denge] [7kurması] [2gerekmektedir].","[1Policymakers] [2need] [7to strike] [6a balance] [5between] [3evidence-based data] [3and] [4public expectations]."],
+"Eleştirmenler, {A} hakkındaki iyimser öngörülerin çoğu zaman abartıldığını ileri sürmektedir.":["[1Eleştirmenler], [2{A} hakkındaki] [3iyimser öngörülerin] [4çoğu zaman] [5abartıldığını] [6ileri sürmektedir].","[1Critics] [6argue that] [3optimistic forecasts] [2about {A}] [5are] [4often] [5exaggerated]."],
+"Buna karşın destekçiler, temkinli bir uygulamanın riskleri önemli ölçüde azaltabileceğini savunmaktadır.":["[1Buna karşın] [2destekçiler], [3temkinli bir uygulamanın] [4riskleri] [5önemli ölçüde] [6azaltabileceğini] [7savunmaktadır].","[2Supporters], [1by contrast], [7maintain that] [3careful implementation] [6could] [5significantly] [6reduce] [4the risks]."],
+"Asıl mesele, teknik olarak mümkün olanın toplumsal açıdan da kabul edilebilir olup olmadığıdır.":["[1Asıl mesele], [2teknik olarak] [3mümkün olanın] [4toplumsal açıdan] [5da] [6kabul edilebilir] [7olup olmadığıdır].","[1The real issue] [7is whether] [3what is] [2technically] [3possible] [7is] [5also] [4socially] [6acceptable]."],
+"Bu bağlamda, {B} üzerine yürütülen bağımsız araştırmalar büyük önem taşımaktadır.":["[1Bu bağlamda], [2{B} üzerine yürütülen] [3bağımsız araştırmalar] [4büyük önem] [5taşımaktadır].","[1In this context], [3independent research] [2on {B}] [5is of] [4great importance]."],
+"Şeffaflık sağlanmadığı takdirde, kamuoyunun güveni kolaylıkla sarsılabilir.":["[1Şeffaflık] [2sağlanmadığı takdirde], [3kamuoyunun güveni] [4kolaylıkla] [5sarsılabilir].","[2Unless] [1transparency] [2is ensured], [3public trust] [5can] [4easily] [5be undermined]."],
+"Dahası, gelişmekte olan ülkeler bu dönüşümün maliyetlerini daha ağır biçimde hissedebilir.":["[1Dahası], [2gelişmekte olan ülkeler] [3bu dönüşümün] [4maliyetlerini] [5daha ağır biçimde] [6hissedebilir].","[1Moreover], [2developing countries] [6may feel] [4the costs] [3of this transformation] [5more heavily]."],
+"Dolayısıyla uluslararası iş birliği, isteğe bağlı bir seçenekten çok bir zorunluluk hâline gelmiştir.":["[1Dolayısıyla] [2uluslararası iş birliği], [3isteğe bağlı bir seçenekten] [4çok] [5bir zorunluluk] [6hâline gelmiştir].","[1Consequently], [2international cooperation] [6has become] [5a necessity] [4rather than] [3an optional choice]."],
+"{A} alanında yapılacak yatırımların getirisi ancak on yıllar içinde ölçülebilecektir.":["[1{A} alanında] [2yapılacak yatırımların] [3getirisi] [4ancak] [5on yıllar içinde] [6ölçülebilecektir].","[3The return] [2on investments] [1in {A}] [6will] [4only] [6be measurable] [5over decades]."],
+"Kısacası, {T} meselesi disiplinler arası bir bakış açısı olmadan anlaşılamaz.":["[1Kısacası], [2{T} meselesi] [3disiplinler arası bir bakış açısı] [4olmadan] [5anlaşılamaz].","[1In short], [2the issue of {T}] [5cannot be understood] [4without] [3an interdisciplinary perspective]."],
+"Bu nedenle okuyucunun, karşılaştığı iddiaları sorgulayan eleştirel bir tutum benimsemesi önerilir.":["[1Bu nedenle] [2okuyucunun], [3karşılaştığı iddiaları] [4sorgulayan] [5eleştirel bir tutum] [6benimsemesi] [7önerilir].","[7It is] [1therefore] [7recommended that] [2readers] [6adopt] [5a critical attitude] [4that questions] [3the claims they encounter]."],
+"Bu metin {T} alanındaki temel bir konuyu ele alıyor.":["[1Bu metin] [2{T} alanındaki] [3temel bir konuyu] [4ele alıyor].","[1This text] [4discusses] [3a basic topic] [2in {T}]."],
+"Araştırmacılar {A} konusunu birçok yıl boyunca inceledi.":["[1Araştırmacılar] [2{A} konusunu] [3birçok yıl boyunca] [4inceledi].","[1Researchers] [4have studied] [2{A}] [3for many years]."],
+"Bir araştırmanın ilk adımı açık bir soru sormaktır.":["[1Bir araştırmanın] [2ilk adımı] [3açık bir soru] [4sormaktır].","[2The first step] [1of a research study] [4is to ask] [3a clear question]."],
+"Daha sonra araştırmacılar veri toplar.":["[1Daha sonra] [2araştırmacılar] [3veri] [4toplar].","[1Then], [2researchers] [4collect] [3data]."],
+"Veriler, {A} hakkında önemli bilgiler sağlayabilir.":["[1Veriler], [2{A} hakkında] [3önemli bilgiler] [4sağlayabilir].","[1The data] [4can provide] [3important information] [2about {A}]."],
+"Bazı sonuçlar {B} ile bir bağlantı olduğunu gösteriyor.":["[1Bazı sonuçlar] [2{B} ile] [3bir bağlantı] [4olduğunu] [5gösteriyor].","[1Some results] [5indicate that] [4there is] [3a link] [2with {B}]."],
+"Ancak bir bağlantı her zaman bir neden anlamına gelmez.":["[1Ancak] [2bir bağlantı] [3her zaman] [4bir neden] [5anlamına gelmez].","[1However], [2a link] [5does not] [3always] [5mean] [4a cause]."],
+"Bu nedenle bilim insanları sonuçlarını dikkatle yorumlamalıdır.":["[1Bu nedenle] [2bilim insanları] [3sonuçlarını] [4dikkatle] [5yorumlamalıdır].","[1Therefore], [2scientists] [5must interpret] [3their results] [4carefully]."],
+"İyi bir araştırma, kaynaklarını açıkça belirtir.":["[1İyi bir araştırma], [2kaynaklarını] [3açıkça] [4belirtir].","[1A good study] [3clearly] [4states] [2its sources]."],
+"Öğrenciler de bu yöntemi kendi ödevlerinde kullanabilir.":["[1Öğrenciler] [2de] [3bu yöntemi] [4kendi ödevlerinde] [5kullanabilir].","[1Students] [5can] [2also] [5use] [3this method] [4in their own assignments]."],
+"Örneğin, {B} hakkında küçük bir anket yapabilirler.":["[1Örneğin], [2{B} hakkında] [3küçük bir anket] [4yapabilirler].","[1For example], [4they can conduct] [3a small survey] [2about {B}]."],
+"Sonuçlar, grafikler ve tablolar ile sunulabilir.":["[1Sonuçlar], [2grafikler ve tablolar ile] [3sunulabilir].","[1The results] [3can be presented] [2with graphs and tables]."],
+"Kısacası, araştırma merak ile başlayan bir süreçtir.":["[1Kısacası], [2araştırma] [3merak ile] [4başlayan] [5bir süreçtir].","[1In short], [2research] [5is a process] [4that begins] [3with curiosity]."],
+"Bu süreç, {T} alanında yeni bilgiler üretmemize yardım eder.":["[1Bu süreç], [2{T} alanında] [3yeni bilgiler] [4üretmemize] [5yardım eder].","[1This process] [5helps us] [4to generate] [3new knowledge] [2in {T}]."],
+"Son yıllarda {T} alanında {A} konusuna yönelik ilgi önemli ölçüde arttı.":["[1Son yıllarda] [2{T} alanında] [3{A} konusuna yönelik] [4ilgi] [5önemli ölçüde] [6arttı].","[1In recent years], [4interest] [3in {A}] [6has increased] [5significantly] [2in the field of {T}]."],
+"Bu çalışmanın amacı, {A} ile {B} arasındaki ilişkiyi analiz etmektir.":["[1Bu çalışmanın] [2amacı], [3{A} ile {B} arasındaki] [4ilişkiyi] [5analiz etmektir].","[2The aim] [1of this study] [5is to analyse] [4the relationship] [3between {A} and {B}]."],
+"Araştırmacılar, nicel ve nitel yöntemleri birleştiren bir yaklaşım benimsedi.":["[1Araştırmacılar], [2nicel ve nitel yöntemleri] [3birleştiren] [4bir yaklaşım] [5benimsedi].","[1The researchers] [5adopted] [4an approach] [3that combines] [2quantitative and qualitative methods]."],
+"Veriler, rastgele seçilen geniş bir örneklemden elde edildi.":["[1Veriler], [2rastgele seçilen] [3geniş bir örneklemden] [4elde edildi].","[1The data] [4were obtained] [3from a large], [2randomly selected] [3sample]."],
+"Bulgular, iki değişken arasında anlamlı bir korelasyon olduğunu göstermektedir.":["[1Bulgular], [2iki değişken arasında] [3anlamlı bir korelasyon] [4olduğunu göstermektedir].","[1The findings] [4indicate] [3a significant correlation] [2between the two variables]."],
+"Bununla birlikte, korelasyon tek başına nedensellik kanıtı sayılmaz.":["[1Bununla birlikte], [2korelasyon] [3tek başına] [4nedensellik kanıtı] [5sayılmaz].","[1Nevertheless], [2correlation] [3alone] [5does not constitute] [4evidence of causality]."],
+"Bu nedenle sonuçların farklı bağlamlarda test edilmesi gerekir.":["[1Bu nedenle] [2sonuçların] [3farklı bağlamlarda] [4test edilmesi] [5gerekir].","[1Therefore], [2the results] [5need] [4to be tested] [3in different contexts]."],
+"Öte yandan, çalışmanın bazı sınırlılıkları da bulunmaktadır.":["[1Öte yandan], [2çalışmanın] [3bazı sınırlılıkları] [4da] [5bulunmaktadır].","[1On the other hand], [2the study] [4also] [5has] [3some limitations]."],
+"Örneğin, katılımcıların çoğu aynı bölgeden seçilmiştir.":["[1Örneğin], [2katılımcıların çoğu] [3aynı bölgeden] [4seçilmiştir].","[1For instance], [2most of the participants] [4were selected] [3from the same region]."],
+"Bu durum, bulguların genellenebilirliğini sınırlayabilir.":["[1Bu durum], [2bulguların] [3genellenebilirliğini] [4sınırlayabilir].","[1This situation] [4may limit] [3the generalisability] [2of the findings]."],
+"Yine de çalışma, {B} konusunda değerli kanıtlar sunmaktadır.":["[1Yine de] [2çalışma], [3{B} konusunda] [4değerli kanıtlar] [5sunmaktadır].","[1Even so], [2the study] [5provides] [4valuable evidence] [3on {B}]."],
+"Sonuçlar, politika yapıcılar için önemli çıkarımlar içermektedir.":["[1Sonuçlar], [2politika yapıcılar için] [3önemli çıkarımlar] [4içermektedir].","[1The results] [4have] [3important implications] [2for policymakers]."],
+"Gelecekteki araştırmaların daha kapsamlı bir veri seti kullanması önerilmektedir.":["[1Gelecekteki araştırmaların] [2daha kapsamlı bir veri seti] [3kullanması] [4önerilmektedir].","[4It is recommended that] [1future research] [3should use] [2a more comprehensive data set]."],
+"Sonuç olarak, {A} konusunun daha ayrıntılı biçimde incelenmesi gerekmektedir.":["[1Sonuç olarak], [2{A} konusunun] [3daha ayrıntılı biçimde] [4incelenmesi] [5gerekmektedir].","[1In conclusion], [2{A}] [5needs] [4to be examined] [3in more detail]."],
+"{T} alanındaki mevcut literatür, {A} kavramını çoğunlukla dar bir kuramsal çerçeve içinde ele almıştır.":["[1{T} alanındaki] [2mevcut literatür], [3{A} kavramını] [4çoğunlukla] [5dar bir kuramsal çerçeve içinde] [6ele almıştır].","[2The existing literature] [1in {T}] [6has] [4largely] [6addressed] [3the concept of {A}] [5within a narrow theoretical framework]."],
+"Bu çalışma, söz konusu boşluğu gidermek amacıyla bütüncül bir model önermektedir.":["[1Bu çalışma], [2söz konusu boşluğu] [3gidermek amacıyla] [4bütüncül bir model] [5önermektedir].","[1This study] [5proposes] [4a holistic model] [3in order to address] [2this gap]."],
+"Temel hipotez, {A} ile {B} arasındaki ilişkinin bağlama bağlı olarak farklılaştığıdır.":["[1Temel hipotez], [2{A} ile {B} arasındaki] [3ilişkinin] [4bağlama bağlı olarak] [5farklılaştığıdır].","[1The central hypothesis] [5is that] [3the relationship] [2between {A} and {B}] [5varies] [4depending on the context]."],
+"Araştırma tasarımı, üç farklı veri kaynağının sistematik olarak karşılaştırılmasına dayanmaktadır.":["[1Araştırma tasarımı], [2üç farklı veri kaynağının] [3sistematik olarak] [4karşılaştırılmasına] [5dayanmaktadır].","[1The research design] [5is based on] [3a systematic] [4comparison] [2of three distinct data sources]."],
+"Ampirik bulgular, önceki çalışmaların öngörülerini kısmen desteklemektedir.":["[1Ampirik bulgular], [2önceki çalışmaların] [3öngörülerini] [4kısmen] [5desteklemektedir].","[1The empirical findings] [4partially] [5support] [3the predictions] [2of previous studies]."],
+"Ancak bazı sonuçlar, yerleşik varsayımların yeniden değerlendirilmesi gerektiğini ima etmektedir.":["[1Ancak] [2bazı sonuçlar], [3yerleşik varsayımların] [4yeniden değerlendirilmesi gerektiğini] [5ima etmektedir].","[1However], [2some results] [5imply that] [3established assumptions] [4should be reassessed]."],
+"Özellikle {B} değişkeninin etkisi beklenenden çok daha belirgin çıkmıştır.":["[1Özellikle] [2{B} değişkeninin] [3etkisi] [4beklenenden] [5çok daha belirgin] [6çıkmıştır].","[1In particular], [3the effect] [2of {B}] [6proved to be] [5far more pronounced] [4than expected]."],
+"Bu bulgu, mevcut paradigmanın açıklama gücünü sorgulamaktadır.":["[1Bu bulgu], [2mevcut paradigmanın] [3açıklama gücünü] [4sorgulamaktadır].","[1This finding] [4calls into question] [3the explanatory power] [2of the prevailing paradigm]."],
+"Bununla birlikte, ölçüm araçlarının geçerliliği ve güvenilirliği titizlikle sınanmıştır.":["[1Bununla birlikte], [2ölçüm araçlarının] [3geçerliliği ve güvenilirliği] [4titizlikle] [5sınanmıştır].","[1Nevertheless], [3the validity and reliability] [2of the measurement instruments] [5were] [4rigorously] [5tested]."],
+"Olası yanlılık kaynaklarını en aza indirmek için çeşitli kontrol değişkenleri modele dahil edilmiştir.":["[1Olası yanlılık kaynaklarını] [2en aza indirmek için] [3çeşitli kontrol değişkenleri] [4modele] [5dahil edilmiştir].","[3Several control variables] [5were incorporated] [4into the model] [2in order to minimise] [1potential sources of bias]."],
+"Elde edilen sonuçlar, {A} olgusunun tek bir etkene indirgenemeyeceğini açıkça ortaya koymaktadır.":["[1Elde edilen sonuçlar], [2{A} olgusunun] [3tek bir etkene] [4indirgenemeyeceğini] [5açıkça] [6ortaya koymaktadır].","[1The results] [5clearly] [6demonstrate that] [2the phenomenon of {A}] [4cannot be reduced] [3to a single factor]."],
+"Dolayısıyla, disiplinler arası yaklaşımlar bu alanda vazgeçilmez hâle gelmiştir.":["[1Dolayısıyla], [2disiplinler arası yaklaşımlar] [3bu alanda] [4vazgeçilmez] [5hâle gelmiştir].","[1Consequently], [2interdisciplinary approaches] [5have become] [4indispensable] [3in this field]."],
+"Çalışmanın kuramsal katkısı, kavramlar arasındaki dinamik etkileşimi görünür kılmasıdır.":["[1Çalışmanın] [2kuramsal katkısı], [3kavramlar arasındaki] [4dinamik etkileşimi] [5görünür] [6kılmasıdır].","[2The theoretical contribution] [1of the study] [6lies in making] [4the dynamic interaction] [3between concepts] [5visible]."],
+"Uygulamaya yönelik çıkarımlar ise kanıta dayalı karar alma süreçlerini güçlendirebilir.":["[1Uygulamaya yönelik çıkarımlar] [2ise] [3kanıta dayalı karar alma süreçlerini] [4güçlendirebilir].","[1The practical implications], [2in turn], [4may strengthen] [3evidence-based decision-making processes]."],
+"Elektrikli araçlar, içten yanmalı motorlu araçlara göre çok daha sessizdir.":["[1Elektrikli araçlar], [2içten yanmalı motorlu araçlara göre] [3çok daha sessizdir].","[1Electric vehicles] [3are much quieter] [2than vehicles with internal combustion engines]."],
+"Ancak motor sesi ortadan kalktığında başka sesler daha belirgin hâle gelir.":["[1Ancak] [2motor sesi] [3ortadan kalktığında] [4başka sesler] [5daha belirgin hâle gelir].","[1However], [3when] [2engine noise] [3disappears], [4other sounds] [5become more noticeable]."],
+"Lastik ve yol gürültüsü, özellikle yüksek hızlarda sürücünün dikkatini çeker.":["[1Lastik ve yol gürültüsü], [2özellikle] [3yüksek hızlarda] [4sürücünün dikkatini] [5çeker].","[1Tyre and road noise] [5attract] [4the driver's attention], [2especially] [3at high speeds]."],
+"Rüzgâr sesi de aynalar ve kapı contaları çevresinde duyulabilir.":["[1Rüzgâr sesi] [2de] [3aynalar ve kapı contaları çevresinde] [4duyulabilir].","[1Wind noise] [4can] [2also] [4be heard] [3around the mirrors and door seals]."],
+"Bu nedenle mühendisler araç tasarımının erken aşamasında NVH analizleri yapar.":["[1Bu nedenle] [2mühendisler] [3araç tasarımının erken aşamasında] [4NVH analizleri] [5yapar].","[1Therefore], [2engineers] [5carry out] [4NVH analyses] [3at an early stage of vehicle design]."],
+"Sonlu elemanlar modelleri, gövdenin hangi frekanslarda titreştiğini gösterebilir.":["[1Sonlu elemanlar modelleri], [2gövdenin] [3hangi frekanslarda] [4titreştiğini] [5gösterebilir].","[1Finite element models] [5can show] [3at which frequencies] [2the body] [4vibrates]."],
+"Bazı problemler fiziksel prototip üretilmeden önce çözülebilir.":["[1Bazı problemler] [2fiziksel prototip] [3üretilmeden önce] [4çözülebilir].","[1Some problems] [4can be solved] [3before] [2a physical prototype] [3is built]."],
+"Yine de simülasyon sonuçlarının test verileriyle doğrulanması gerekir.":["[1Yine de] [2simülasyon sonuçlarının] [3test verileriyle] [4doğrulanması gerekir].","[1Even so], [2simulation results] [4need to be validated] [3with test data]."],
+"Yalıtım malzemeleri sesi azaltır, fakat aracın ağırlığını ve maliyetini artırabilir.":["[1Yalıtım malzemeleri] [2sesi] [3azaltır], [4fakat] [5aracın ağırlığını ve maliyetini] [6artırabilir].","[1Insulation materials] [3reduce] [2noise], [4but] [6they can increase] [5the vehicle's weight and cost]."],
+"Sonuç olarak iyi bir tasarım, konfor, menzil ve maliyet arasında denge kurar.":["[1Sonuç olarak] [2iyi bir tasarım], [3konfor, menzil ve maliyet arasında] [4denge kurar].","[1In conclusion], [2a good design] [4strikes a balance] [3between comfort, range and cost]."]
+};
+function parseAl(s){const out=[];const re=/\[(\d+)([^\]]*)\]|([^\[]+)/g;let m;while((m=re.exec(s)))out.push(m[1]?[m[2],+m[1]]:[m[3],0]);return out}
+function fillNC(t,lang,topic,a,b){if(!topic)return t;const T=lang==="tr"?topic.tr.toLocaleLowerCase("tr"):topic.en;const A=lang==="tr"?a[0]:a[1],B=lang==="tr"?b[0]:b[1];return t.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{B\}/g,B)}
+function mkAl(key,topic,a,b){const P=ALIGN[key];if(!P)return null;const side=(s,lang)=>{const segs=parseAl(s).map(([t,k])=>[fillNC(t,lang,topic,a,b),k]);if(segs.length&&segs[0][0])segs[0][0]=cap(segs[0][0],lang==="tr"?"tr":"en");return segs};return{tr:side(P[0],"tr"),en:side(P[1],"en")}}
+
+/* 2) İLERLEME MODELİ */
+const LS_KEY="ceviridenOgren.v2";
+const today=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+function emptyState(){return {schema:2,updatedAt:0,items:{},days:{},customTexts:[],settings:{rate:0.85},ext:null}}
+function foSnap(){try{const ts=+(localStorage.getItem('fo:ts')||0);if(!ts)return null;return {p:JSON.parse(localStorage.getItem('fo:progress')||'null'),s:JSON.parse(localStorage.getItem('fo:srs')||'null'),ts}}catch(e){return null}}
+function foApply(){const loc=foSnap(),rem=state.ext;if(rem&&rem.ts>(loc?loc.ts:0)){try{if(rem.p)localStorage.setItem('fo:progress',JSON.stringify(rem.p));if(rem.s)localStorage.setItem('fo:srs',JSON.stringify(rem.s));localStorage.setItem('fo:ts',String(rem.ts))}catch(e){}}else if(loc)state.ext=loc}
+function loadState(){try{const s=JSON.parse(localStorage.getItem(LS_KEY));if(s&&s.schema===2)return s}catch(e){}return emptyState()}
+let state=loadState();
+function saveState(){state.updatedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(state));updateStats();scheduleDriveSync()}
+function item(id){return state.items[id]||(state.items[id]={best:0,attempts:0,done:false,doneAt:null,updatedAt:0})}
+function touch(id){item(id).updatedAt=Date.now();state.days[today()]=true}
+function mergeStates(a,b){
+  const m=emptyState();m.settings={...(a.settings||{}),...(b.settings||{})};
+  const ids=new Set([...Object.keys(a.items||{}),...Object.keys(b.items||{})]);
+  ids.forEach(id=>{const x=(a.items||{})[id],y=(b.items||{})[id];
+    if(!x||!y){m.items[id]={...(x||y)};return}
+    const newer=(x.updatedAt||0)>=(y.updatedAt||0)?x:y;
+    m.items[id]={...newer,best:Math.max(x.best||0,y.best||0),attempts:Math.max(x.attempts||0,y.attempts||0)};});
+  m.days={...(a.days||{}),...(b.days||{})};
+  const ct=new Map();[...(a.customTexts||[]),...(b.customTexts||[])].forEach(t=>ct.set(t.id,t));m.customTexts=[...ct.values()];
+  m.ext=((a.ext&&a.ext.ts)||0)>=((b.ext&&b.ext.ts)||0)?(a.ext||null):(b.ext||null);m.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);return m}
+
+/* 3) UYGULAMA */
+const MTR=(window.MTR_TEXTS||[]).map(t=>({...t,col:"mtr"}));
+const stripAl=x=>x.replace(/\[\d+([^\]]*)\]/g,"$1");const RD_CATS=window.RD_CATS||[];const rdCat=Object.fromEntries(RD_CATS.map(c=>[c.code,c.tr]));
+const RD=(window.RD_TEXTS||[]).map(t=>({id:t.id,title:t.title,topicKey:"rd-"+t.code,topic:"Okuma · "+(rdCat[t.code]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"Fluent Ops özgün okuma makalesi · "+t.titleTr,col:"read"}));
+const base=[...buildCorpus(),...buildAcad(),...RD,...MTR];
+const VOA_KEY="co.voa",VOA_URL=localStorage.getItem("co.voaUrl")||"news/voa.json";
+const AYL=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];const fmtD=d=>{const p=d.split("-");return +p[2]+" "+AYL[+p[1]-1]+" "+p[0]};
+function voaRaw(){const m=new Map();const put=f=>{(f&&f.items||[]).forEach(t=>{if(t&&t.id&&t.s)m.set(t.id,t)})};put(window.VOA_FEED);try{put(JSON.parse(localStorage.getItem(VOA_KEY)||"null"))}catch(e){}return [...m.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id))}
+function voaMap(l){return l.map(t=>({id:t.id,title:t.title,titleTr:t.titleTr,topicKey:"voa-"+t.date,topic:"Haber · "+fmtD(t.date),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"VOA haberinden uyarlandı",col:"voa",src:t.src,by:t.by,date:t.date}))}
+let VOA=voaMap(voaRaw());
+async function voaRefresh(){if(location.protocol==="file:")return;try{const r=await fetch(VOA_URL,{cache:"no-store"});if(!r.ok)return;const f=await r.json();if(!f||!Array.isArray(f.items))return;
+  const old=new Set(VOA.map(a=>a.id));let keep=voaRaw();const m=new Map(keep.map(t=>[t.id,t]));f.items.forEach(t=>{if(t&&t.id&&t.s)m.set(t.id,t)});
+  const all=[...m.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id)).slice(0,300);try{localStorage.setItem(VOA_KEY,JSON.stringify({items:all}))}catch(e){}
+  VOA=voaMap(all);const n=VOA.filter(a=>!old.has(a.id)).length;if(!n)return;const tv=$("#topic").value;rebuild();renderTopics();if([...$("#topic").options].some(o=>o.value===tv))$("#topic").value=tv;voaOpt();updateStats();renderList();toast(n+" yeni günlük haber eklendi")}catch(e){}}
+function voaOpt(){const o=$("#voaOpt");if(o)o.textContent="Günlük haberler · VOA ("+VOA.length+")"}
+let corpus=[];function rebuild(){corpus=[...state.customTexts.map(t=>({...t,col:t.col||"gen"})),...VOA,...base]}rebuild();
+let selectedId=corpus[0].id,currentTab="learn",practiceIdx=0;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const cur=()=>corpus.find(a=>a.id===selectedId)||corpus[0];
+const dir=()=>$("#direction").value;
+const hasTr=a=>Array.isArray(a.tr)&&a.tr.length===a.en.length;
+const effDir=a=>hasTr(a)?dir():"en-tr";
+const src=a=>effDir(a)==="tr-en"?a.tr:a.en, tgt=a=>effDir(a)==="tr-en"?a.en:(hasTr(a)?a.tr:null);
+const srcLang=a=>effDir(a)==="tr-en"?"tr":"en";
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function toast(t,ms=2400){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),ms)}
+const bingUrl=s=>"https://www.bing.com/translator?from=en&to=tr&text="+encodeURIComponent(s);
+
+/* Renklendirme */
+const ALL_TOPICS=[...TOPICS,...ACAD_FIELDS];
+const LINKS=["however","therefore","moreover","consequently","although","because","but","unless","whether","still","even so","nevertheless","furthermore","whereas","thus","hence","on the other hand","by contrast","as a result","in short","in conclusion","for example","for instance","in this context","in particular","that is why","when","ancak","fakat","ama","bununla birlikte","bu nedenle","bu yüzden","dahası","dolayısıyla","öte yandan","buna karşın","örneğin","sonuç olarak","kısacası","yine de","bu bağlamda","takdirde","sonunda","özellikle"];
+function hlRegex(words){return new RegExp("(^|[^\\p{L}])("+[...words].sort((a,b)=>b.length-a.length).map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")(?=[^\\p{L}]|$)","giu")}
+const LINK_RE=hlRegex(LINKS);
+const AWL_SET=new Set(AWL_WORDS);
+const AWL_RE=new RegExp("(^|[^\\p{L}])(("+AWL_WORDS.slice().sort((a,b)=>b.length-a.length).join("|")+")(?:s|es|ed|d|ing|al|ly|ally|ation|ations)?)(?=[^\\p{L}]|$)","giu");
+const TR_VERB_RE=/(^|[^\p{L}])(\p{L}+(?:abilir|ebilir|abilecek\p{L}*|ebilecek\p{L}*|malıdır|melidir|mektedir|maktadır|miştir|mıştır|muştur|müştür|ıyor|iyor|uyor|üyor|yor)\p{L}*)(?=[^\p{L}]|$)/giu;
+const EN_VERB_RE=/(^|[^\p{L}])(can|could|may|might|should|must|will|need to|have to)(?=[^\p{L}]|$)/giu;
+function glossOf(w){w=w.toLowerCase();if(GLOSS[w])return GLOSS[w];for(const suf of["s","es","ed","d","ing","ly","al"]){if(w.endsWith(suf)&&GLOSS[w.slice(0,-suf.length)])return GLOSS[w.slice(0,-suf.length)]}return null}
+function baseAwl(w){w=w.toLowerCase();if(AWL_SET.has(w))return w;for(const suf of["ations","ation","ally","ing","ed","es","ly","al","s","d"]){if(w.endsWith(suf)&&AWL_SET.has(w.slice(0,-suf.length)))return w.slice(0,-suf.length)}return w}
+function highlight(s,a,lang){
+  let x=esc(s);const topic=ALL_TOPICS.find(t=>t.key===a.topicKey);
+  const marks=[];const put=(re,cls,attr)=>{x=x.replace(re,(m,p,w)=>{marks.push(`<mark class="${cls}"${attr?attr(w):""}>${w}</mark>`);return p+"\u0000"+(marks.length-1)+"\u0001"})};
+  if(topic){put(hlRegex(topic.terms.map(t=>lang==="tr"?t[0]:t[1].replace(/^the /,""))),"hl-term");put(hlRegex([lang==="tr"?topic.tr.toLocaleLowerCase("tr"):topic.en.replace(/^the /,""),lang==="tr"?topic.tr:cap(topic.en.replace(/^the /,""),"en")]),"hl-topic")}
+  put(LINK_RE,"hl-link");
+  if(lang==="en")put(AWL_RE,"hl-acad",w=>` data-w="${esc(baseAwl(w))}"`);
+  put(lang==="tr"?TR_VERB_RE:EN_VERB_RE,"hl-verb");
+  return x.replace(/\u0000(\d+)\u0001/g,(m,i)=>marks[+i]);
+}
+const legend=`<p class="legend note"><span class="hl-topic">konu</span><span class="hl-term">terim</span><span class="hl-acad">akademik kelime (dokun)</span><span class="hl-verb">fiil/kip</span><span class="hl-link">bağlaç</span></p>`;
+const colorOn=()=>(state.settings.color||"al")==="al";
+function rend(a,i,lang,s){if(colorOn()&&a.al&&a.al[i]){const segs=lang==="tr"?a.al[i].tr:a.al[i].en;return segs.map(([t,k])=>k?`<span class="al c${(k-1)%8+1}" data-k="${i}-${k}" data-l="${lang}">${esc(t)}</span>`:esc(t)).join("")}return highlight(s,a,lang)}
+function legendFor(a){const on=colorOn();const tg=a.al?`<div class="actions cmode"><span class="note">Renklendirme:</span><button class="btn sm ${on?"primary":"ghost"}" data-cm="al">Yapı yapı eşleme</button><button class="btn sm ${on?"ghost":"primary"}" data-cm="hl">Konu & terim</button></div>`:"";
+  return tg+(on&&a.al?`<p class="note">Aynı renk = aynı anlam parçası. Bir parçaya dokun: karşılığı vurgulanır, İngilizcesi okunur.</p>`:legend)}
+function acadWordsOf(a){const set=new Set();a.en.forEach(s=>{for(const m of s.matchAll(AWL_RE)){const b=baseAwl(m[2]);if(AWL_SET.has(b))set.add(b)}});return [...set].sort()}
+
+/* Ses */
+let voices=[];function loadVoices(){voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}
+if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+function pickVoice(){return voices.find(v=>v.lang==="en-US"&&/samantha|google|natural|aria|jenny/i.test(v.name))||voices.find(v=>v.lang==="en-US")||voices.find(v=>v.lang==="en-GB")||voices[0]}
+function speak(list,onEach){
+  if(!("speechSynthesis" in window)){toast("Bu tarayıcı sesli okumayı desteklemiyor");return}
+  speechSynthesis.cancel();const v=pickVoice();
+  list.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t);u.lang="en-US";if(v)u.voice=v;u.rate=state.settings.rate||0.85;u.onstart=()=>onEach&&onEach(i);u.onend=()=>{if(i===list.length-1&&onEach)onEach(-1)};speechSynthesis.speak(u)});
+}
+function stopSpeak(){if("speechSynthesis" in window)speechSynthesis.cancel();$$(".sentence.speaking").forEach(x=>x.classList.remove("speaking"))}
+
+/* Liste */
+function renderTopics(){const sel=$("#topic");sel.innerHTML='<option value="all">Tüm konular</option>';const col=$("#collection").value;
+  const add=(k,l)=>sel.insertAdjacentHTML("beforeend",`<option value="${k}">${l}</option>`);
+  if(col==="all"||col==="gen")TOPICS.forEach(t=>add(t.key,t.tr));
+  if(col==="all"||col==="acad")ACAD_FIELDS.forEach(t=>add(t.key,"Akademik · "+t.tr));
+  if(col==="all"||col==="voa")[...new Set(VOA.map(a=>a.topicKey))].forEach(k=>add(k,VOA.find(a=>a.topicKey===k).topic));if(col==="all"||col==="read")RD_CATS.forEach(c=>add("rd-"+c.code,"Okuma · "+c.tr));if(col==="all"||col==="mtr")add("mtr","MTR okuma metinleri")}
+function filtered(){const q=$("#search").value.toLocaleLowerCase("tr"),c=$("#collection").value,l=$("#level").value,t=$("#topic").value,s=$("#status").value;
+  return corpus.filter(a=>{const it=state.items[a.id];
+    if(c!=="all"&&a.col!==c)return false;
+    if(l!=="all"&&String(a.level)!==l)return false;if(t!=="all"&&a.topicKey!==t)return false;
+    if(s==="done"&&!it?.done)return false;if(s==="todo"&&(it?.done))return false;if(s==="tried"&&!(it&&it.attempts>0&&!it.done))return false;
+    if(q&&!(a.title+" "+a.topic+" "+(a.tr||[]).join(" ")+" "+a.en.join(" ")).toLocaleLowerCase("tr").includes(q))return false;return true})}
+function lvBadge(l){return `<span class="badge lv${l}">${LEVELS[l].name} · ${LEVELS[l].cefr}</span>`}
+const colName={gen:"Genel",acad:"Akademik",read:"Okuma",voa:"VOA",mtr:"MTR"};
+let listPage=0,listSig="",listSel=null;const PAGE=100;
+function renderList(){const list=filtered();const sig=["#search","#collection","#level","#topic","#status","#direction"].map(x=>$(x).value).join("|");const ix=list.findIndex(a=>a.id===selectedId);
+  if(sig!==listSig||selectedId!==listSel){if(ix>=0)listPage=Math.floor(ix/PAGE);else if(sig!==listSig)listPage=0;listSig=sig;listSel=selectedId}
+  const pages=Math.max(1,Math.ceil(list.length/PAGE));listPage=Math.max(0,Math.min(listPage,pages-1));
+  $("#listInfo").textContent=`${list.length} metin`+(pages>1?` · sayfa ${listPage+1} / ${pages}`:"");
+  const pager=pages>1?`<div class="pager"><button class="btn sm ghost" data-pg="-1" ${listPage?"":"disabled"}>◀ Önceki</button><span class="note">${listPage*PAGE+1}–${Math.min(list.length,(listPage+1)*PAGE)}</span><button class="btn sm ghost" data-pg="1" ${listPage<pages-1?"":"disabled"}>Sonraki ▶</button></div>`:"";
+  $("#articleList").innerHTML=pager+list.slice(listPage*PAGE,(listPage+1)*PAGE).map(a=>{const it=state.items[a.id];const mark=it?.done?"✅":it?.attempts?`✓ ${it.best||""}${it.best?"%":""}`:"";
+    return `<button class="article ${a.id===selectedId?"active":""}" data-id="${a.id}"><b>${esc(a.title)}</b><small><span>${colName[a.col]||""} · ${esc(a.topic)} · ${LEVELS[a.level].name} · ${a.en.length} cümle</span><span>${mark}</span></small></button>`}).join("")+pager||($("#collection").value==="mtr"&&!MTR.length?'<div class="empty">MTR metinleri bu cihazda yok.<br>“☁️ Kayıt & Drive” sekmesinden MTR dosyasını bir kez yükle.</div>':'<div class="empty">Sonuç bulunamadı.</div>');
+  $$("#articleList [data-pg]").forEach(b=>b.onclick=()=>{listPage+=+b.dataset.pg;renderList();const sb=$(".sidebar");if(sb)sb.scrollTop=0});
+  $$(".article").forEach(b=>b.onclick=()=>{selectedId=b.dataset.id;practiceIdx=0;stopSpeak();render();if(innerWidth<780)$(".reader").scrollIntoView({behavior:"smooth"})})}
+
+function head(a){const it=state.items[a.id];return `<div class="topline"><div><h2>${esc(a.title)}</h2><span class="badge">${esc(a.topic)}</span>${lvBadge(a.level)}<span class="badge">${a.en.length} cümle</span>${a.col!=="gen"?`<span class="badge bacad">${colName[a.col]}</span>`:""}${it?.best?`<span class="badge">en iyi: ${it.best}%</span>`:""}${a.src?`<div class="note voasrc">${esc(a.titleTr||"")} · Kaynak: <a href="${esc(a.src)}" target="_blank" rel="noopener">${esc(a.by||"VOA")} — voanews.com</a> (sadeleştirilmiş uyarlama)</div>`:""}</div>
+  <div class="actions"><button class="btn ghost sm" id="listenAll">🔊 Tümünü dinle</button><button class="btn ghost sm" id="stopAll">⏹</button>
+  <select id="rate" class="control" style="min-width:auto;padding:6px"><option value="0.7">0.7×</option><option value="0.85">0.85×</option><option value="1">1×</option></select></div></div>
+  ${!hasTr(a)?`<div class="info">Bu bir <b>MTR okuma metni</b>: yalnızca İngilizce aslı var, hazır Türkçe çevirisi yok. Bu yüzden her zaman <b>İngilizce → Türkçe</b> çalışılır. Kendi çevirini yaz, istersen her cümleyi 🌐 ile çeviri motorunda karşılaştır (internet gerekir).</div>`:""}`}
+function doneBar(a){const it=state.items[a.id];return `<div class="donebar actions">${it?.done?`<button class="btn success" id="doneBtn">✅ Done · ${esc(new Date(it.doneAt).toLocaleDateString("tr-TR"))}</button><button class="btn ghost sm" id="undoneBtn">Geri al</button>`:`<button class="btn primary" id="doneBtn">✔ Done — bu metni tamamen öğrendim</button>`}<span class="note">Done kaydı kalıcıdır; Drive bağlıysa tüm cihazlara eşitlenir.</span></div>`}
+function learnView(a){const sl=srcLang(a),T=tgt(a);return head(a)+legendFor(a)+src(a).map((s,i)=>`<div class="sentence" data-s="${i}"><div class="source"><span class="num">${i+1}</span>${rend(a,i,sl,s)}</div><div class="translation hidden">${T?rend(a,i,sl==="tr"?"en":"tr",T[i]):`<span class="note">Hazır çeviri yok.</span> <a class="btn ghost sm" target="_blank" rel="noopener" href="${bingUrl(a.en[i])}">🌐 Çeviri motorunda gör</a>`}<div style="margin-top:6px"><button class="btn ghost sm listenOne" data-i="${i}">🔊 İngilizcesini dinle</button></div></div></div>`).join("")+`<div class="actions"><button id="toggleAll" class="btn ghost">Tüm çevirileri göster/gizle</button></div><p class="note">Cümleye dokun → çeviri açılır. Pembe kelimeye dokun → akademik kelime anlamı. Kaynak: ${esc(a.origin)}.</p>`+doneBar(a)}
+function fullView(a){const sl=srcLang(a),T=tgt(a);return head(a)+legendFor(a)+`<div class="grid"><div class="sentence" style="flex:1;min-width:260px;cursor:default"><b>${sl==="tr"?"Türkçe":"English"}</b><p>${src(a).map((x,j)=>rend(a,j,sl,x)).join(" ")}</p></div>${T?`<div class="sentence" style="flex:1;min-width:260px;cursor:default"><b>${sl==="tr"?"English":"Türkçe"}</b><p>${T.map((x,j)=>rend(a,j,sl==="tr"?"en":"tr",x)).join(" ")}</p></div>`:""}</div>`+doneBar(a)}
+function practiceView(a){const n=a.en.length,i=Math.min(practiceIdx,n-1),T=tgt(a);return head(a)+`<p class="note">Cümle ${i+1} / ${n}</p><div class="progress"><i style="width:${(i/n)*100}%"></i></div>
+  <div class="sentence" style="cursor:default"><div class="source">${highlight(src(a)[i],a,srcLang(a))}</div>${srcLang(a)==="en"?`<button class="btn ghost sm listenOne" data-i="${i}" style="margin-top:6px">🔊 Dinle</button>`:""}</div>
+  <textarea id="answer" class="answer" placeholder="${srcLang(a)==="tr"?"İngilizce çevirini yaz…":"Türkçe çevirini yaz…"}"></textarea>
+  <div class="actions" style="margin-top:8px"><button id="check" class="btn success">${T?"Kontrol et":"Kaydet ve karşılaştır"}</button>${T?`<button id="showRef" class="btn ghost">Örnek çeviri</button>`:`<a class="btn ghost" target="_blank" rel="noopener" href="${bingUrl(a.en[i])}">🌐 Çeviri motorunda gör</a>`}<button id="prevS" class="btn ghost" ${i===0?"disabled":""}>◀</button><button id="nextS" class="btn ghost" ${i===n-1?"disabled":""}>▶</button></div><div id="feedback"></div>`+doneBar(a)}
+function wordsView(a){const w=acadWordsOf(a);return head(a)+`<h3>Bu metindeki akademik kelimeler (${w.length})</h3>${w.length?`<div class="wordlist">${w.map(x=>`<span class="awl" data-w="${esc(x)}">${esc(x)}${glossOf(x)?" · "+esc(glossOf(x)):""}</span>`).join("")}</div>`:`<p class="note">Bu metinde listedeki akademik kelimelerden biri bulunmuyor.</p>`}
+  <p class="note">Liste: ${AWL_WORDS.length} akademik kelime (TOEFL/IELTS/YDS odaklı listeden yalnızca kelimeler alınmıştır; tanım ve örnek cümleler kopyalanmamıştır). Türkçe karşılık yalnızca uygulamanın kendi sözlüğünde bulunan kelimeler için gösterilir. Kelimeye dokununca İngilizce okunur.</p>`+doneBar(a)}
+function libraryView(){return `<h2>Kendi metnini ekle</h2><p class="note">Standart: <b>10–50 cümle</b>. Her satır bir cümle; iki dilde satır sayısı eşit olmalı. Eklenen metinler Drive ile eşitlenir.</p>
+  <input id="newTitle" class="control" style="width:100%;margin-bottom:8px" placeholder="Başlık">
+  <div class="grid" style="margin-bottom:8px"><select id="newLevel" class="control"><option value="1">Kolay</option><option value="2" selected>Orta</option><option value="3">Zor</option></select><select id="newTopic" class="control">${ALL_TOPICS.map(t=>`<option value="${t.key}">${t.tr}</option>`).join("")}</select></div>
+  <div class="grid"><textarea id="newTr" class="answer" style="flex:1;min-width:260px" placeholder="Türkçe – her satıra bir cümle"></textarea><textarea id="newEn" class="answer" style="flex:1;min-width:260px" placeholder="English – one sentence per line"></textarea></div>
+  <button id="addText" class="btn primary" style="margin-top:10px">Kütüphaneye ekle</button><div id="addMsg"></div>
+  ${state.customTexts.length?`<h3>Eklediğin metinler</h3>${state.customTexts.map(t=>`<div class="actions"><span>${esc(t.title)} · ${t.tr.length} cümle</span><button class="btn ghost sm delCustom" data-id="${t.id}">Sil</button></div>`).join("")}`:""}`}
+function syncView(){const cid=localStorage.getItem(CID_KEY)||"";return `<h2>Kayıt & Google Drive eşitleme</h2>
+  <p><b>Tek bağlantı, iki kol:</b> Drive eşitlemesi Dersler kolunun (tamamlanan dersler, skorlar, kelime kasası) ilerlemesini de taşır.</p><p>İlerlemen her değişiklikte önce bu cihaza kaydedilir. Google Drive bağlandığında aynı kayıt Drive'ın gizli <b>uygulama veri klasörüne</b> yazılır; iPhone ve bilgisayarda aynı Google hesabıyla bağlanınca Done'lar ve skorlar birleştirilir.</p>
+  <div class="result"><b>Durum:</b> <span id="syncInline">${esc($("#syncStatus").textContent)}</span>
+  <div class="actions" style="margin-top:10px"><button class="btn primary" id="gConnect" ${cid?"":"disabled"}>${driveToken()?"🔄 Şimdi eşitle":"🔗 Google Drive'a bağlan"}</button>${driveToken()?`<button class="btn ghost" id="gDisconnect">Bağlantıyı kes</button>`:""}</div></div>
+  <h3>Bir kerelik kurulum</h3>
+  <label class="note">Google OAuth Client ID</label><input id="cid" class="control" style="width:100%" value="${esc(cid)}" placeholder="xxxxxxxx.apps.googleusercontent.com"><button class="btn ghost sm" id="saveCid" style="margin-top:6px">Kaydet</button>
+  <ol class="note"><li>Uygulamayı <b>https</b> adresinde yayınla (ör. Netlify Drop, GitHub Pages). Google girişi <code>file://</code> ile açılan dosyada çalışmaz.</li>
+  <li>Google Cloud Console → yeni proje → <b>Google Drive API</b>'yi etkinleştir.</li>
+  <li>OAuth consent screen: External, kendi hesabını <b>Test user</b> olarak ekle; kapsam: <code>https://www.googleapis.com/auth/drive.appdata</code>.</li>
+  <li>Credentials → OAuth client ID → <b>Web application</b>; Authorized JavaScript origins'e yayın adresini ekle.</li>
+  <li>Client ID'yi yukarı yapıştır, kaydet, “Bağlan”a bas. Aynısını iPhone'daki ana ekran uygulamasında da bir kez yap.</li></ol>
+  <h3>Yedek (Drive olmadan da çalışır)</h3>
+  <div class="actions"><button class="btn ghost" id="exportBtn">⬇️ İlerlemeyi indir (JSON)</button><button class="btn ghost" id="importBtn">⬆️ Yedeği yükle / birleştir</button><input id="importFile" type="file" accept="application/json,.json" class="hidden"></div>
+  <h3>MTR okuma metinleri</h3><p class="note">Durum: <b>${MTR.length?MTR.length+" metin yüklü":"bu cihazda yok"}</b>. Kişisel MTR dosyanı (<code>mtr-content.js</code>) bu cihaza bir kez yükle. Metinler yalnızca bu cihazda saklanır; internete ya da siteye gönderilmez.</p><div class="actions"><button class="btn ghost" id="mtrBtn">📄 MTR dosyasını yükle</button>${localStorage.getItem("co.mtr")?'<button class="btn ghost sm" id="mtrDel">Bu cihazdan kaldır</button>':""}<input id="mtrFile" type="file" class="hidden"></div>`}
+
+function render(){renderList();const a=cur();
+  $("#content").innerHTML=currentTab==="learn"?learnView(a):currentTab==="full"?fullView(a):currentTab==="practice"?practiceView(a):currentTab==="words"?wordsView(a):currentTab==="library"?libraryView():syncView();
+  bind(a)}
+function bind(a){
+  $$("[data-cm]").forEach(b=>b.onclick=()=>{state.settings.color=b.dataset.cm;saveState();render()});
+  $$(".al").forEach(sp=>sp.onclick=e=>{e.stopPropagation();const box=sp.closest(".sentence[data-s]")||$("#content");const tr=box.querySelector(".translation");if(tr)tr.classList.remove("hidden");const k=sp.dataset.k;
+    box.querySelectorAll(".al").forEach(x=>x.classList.toggle("on",x.dataset.k===k));const en=[...box.querySelectorAll('.al[data-l="en"]')].filter(x=>x.dataset.k===k).map(x=>x.textContent).join(" ");if(en)speak([en])});
+  const r=$("#rate");if(r){r.value=String(state.settings.rate||0.85);r.onchange=()=>{state.settings.rate=+r.value;saveState()}}
+  const la=$("#listenAll");if(la)la.onclick=()=>{const boxes=$$(".sentence[data-s]");speak(a.en,i=>{boxes.forEach(b=>b.classList.remove("speaking"));if(i>=0&&boxes[i]){boxes[i].classList.add("speaking");boxes[i].scrollIntoView({block:"nearest",behavior:"smooth"})}})};
+  const sa=$("#stopAll");if(sa)sa.onclick=stopSpeak;
+  $$(".listenOne").forEach(b=>b.onclick=e=>{e.stopPropagation();speak([a.en[+b.dataset.i]])});
+  $$(".hl-acad").forEach(m=>m.onclick=e=>{e.stopPropagation();const w=m.dataset.w,g=glossOf(w);speak([w]);toast(`📘 ${w}${g?" — "+g:" (akademik kelime)"}`)});
+  $$(".awl").forEach(m=>m.onclick=()=>speak([m.dataset.w]));
+  $$(".sentence[data-s] a").forEach(x=>x.onclick=e=>e.stopPropagation());
+  $$(".sentence[data-s]").forEach(x=>x.onclick=()=>x.querySelector(".translation").classList.toggle("hidden"));
+  const ta=$("#toggleAll");if(ta)ta.onclick=()=>{const anyHidden=$$(".translation.hidden").length>0;$$(".translation").forEach(x=>x.classList.toggle("hidden",!anyHidden))};
+  const db=$("#doneBtn");if(db)db.onclick=()=>{const it=item(a.id);if(it.done)return;it.done=true;it.doneAt=Date.now();touch(a.id);saveState();toast("✅ Done olarak kaydedildi");render()};
+  const ub=$("#undoneBtn");if(ub)ub.onclick=()=>{const it=item(a.id);it.done=false;it.doneAt=null;touch(a.id);saveState();render()};
+  if(currentTab==="practice"){
+    $("#check").onclick=()=>checkSentence(a);const sr=$("#showRef");if(sr)sr.onclick=()=>{$("#feedback").innerHTML=`<div class="result"><b>Örnek çeviri</b><p>${esc(tgt(a)[practiceIdx])}</p></div>`};
+    $("#prevS").onclick=()=>{practiceIdx--;render()};$("#nextS").onclick=()=>{practiceIdx++;render()};}
+  if(currentTab==="library"){
+    $("#addText").onclick=()=>{const tr=$("#newTr").value.split(/\n+/).map(s=>s.trim()).filter(Boolean),en=$("#newEn").value.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+      if(tr.length<10||tr.length>50){$("#addMsg").innerHTML=`<p class="bad">Türkçe metin ${tr.length} cümle. 10–50 arası olmalı.</p>`;return}
+      if(tr.length!==en.length){$("#addMsg").innerHTML=`<p class="bad">Satır sayıları eşleşmiyor: TR ${tr.length}, EN ${en.length}.</p>`;return}
+      const tk=$("#newTopic").value,t=ALL_TOPICS.find(x=>x.key===tk);
+      const txt={id:"u-"+Date.now().toString(36),topicKey:tk,topic:t.tr,level:+$("#newLevel").value,title:$("#newTitle").value.trim()||"Kullanıcı Metni",tr,en,origin:"Kullanıcı metni",col:"gen"};
+      state.customTexts.unshift(txt);saveState();rebuild();selectedId=txt.id;currentTab="learn";setTab();render();toast("Metin eklendi")};
+    $$(".delCustom").forEach(b=>b.onclick=()=>{if(!confirm("Bu metin silinsin mi?"))return;state.customTexts=state.customTexts.filter(t=>t.id!==b.dataset.id);saveState();rebuild();if(!corpus.find(x=>x.id===selectedId))selectedId=corpus[0].id;render()})}
+  if(currentTab==="sync"){
+    $("#saveCid").onclick=()=>{localStorage.setItem(CID_KEY,$("#cid").value.trim());initDrive();render();toast("Client ID kaydedildi")};
+    $("#gConnect").onclick=()=>driveToken()?syncNow():connectDrive();
+    const gd=$("#gDisconnect");if(gd)gd.onclick=()=>{try{google.accounts.oauth2.revoke(gAccess.token)}catch(e){}gAccess={token:null,exp:0};setSync("Drive bağlantısı kesildi · ilerleme bu cihazda");render()};
+    $("#exportBtn").onclick=exportProgress;$("#mtrBtn").onclick=()=>$("#mtrFile").click();
+    $("#mtrFile").onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const t=String(r.result);const arr=JSON.parse(t.slice(t.indexOf("["),t.lastIndexOf("]")+1));if(!Array.isArray(arr)||!arr.length||!arr[0].en)throw 0;localStorage.setItem("co.mtr",JSON.stringify(arr));toast(arr.length+" MTR metni yüklendi");setTimeout(()=>location.reload(),900)}catch(err){toast("Dosya okunamadı — mtr-content.js dosyasını seç")}};r.readAsText(f)};
+    const mdl=$("#mtrDel");if(mdl)mdl.onclick=()=>{localStorage.removeItem("co.mtr");location.reload()};$("#importBtn").onclick=()=>$("#importFile").click();$("#importFile").onchange=importProgress}
+}
+
+function norm(s,lang){return s.toLocaleLowerCase(lang).replace(/[’']/g,"'").replace(/[^\p{L}\p{N}'\s-]/gu," ").split(/\s+/).filter(Boolean)}
+function checkSentence(a){const ansRaw=$("#answer").value.trim();if(!ansRaw){toast("Önce çevirini yaz");return}
+  const T=tgt(a),it=item(a.id);it.attempts++;it.sent=it.sent||{};
+  if(!T){it.notes=it.notes||{};it.notes[practiceIdx]=ansRaw;touch(a.id);saveState();
+    $("#feedback").innerHTML=`<div class="result"><b>Çevirin kaydedildi.</b><p class="note">Bu metnin hazır Türkçe çevirisi olmadığı için otomatik puan verilmez. Aslı ile kendi çevirini karşılaştır:</p><p><b>EN:</b> ${esc(a.en[practiceIdx])}</p><p><b>Senin:</b> ${esc(ansRaw)}</p><a class="btn ghost sm" target="_blank" rel="noopener" href="${bingUrl(a.en[practiceIdx])}">🌐 Çeviri motorunda karşılaştır</a></div>`;renderList();return}
+  const lang=srcLang(a)==="tr"?"en":"tr",ref=T[practiceIdx],ans=norm(ansRaw,lang),refSet=new Set(norm(ref,lang)),ansSet=new Set(ans);
+  const common=[...ansSet].filter(w=>refSet.has(w)).length,p=common/Math.max(ansSet.size,1),r=common/Math.max(refSet.size,1);
+  const score=Math.round((p&&r?2*p*r/(p+r):0)*100);
+  it.sent[practiceIdx]=Math.max(it.sent[practiceIdx]||0,score);
+  it.best=Math.round(Object.values(it.sent).reduce((s,x)=>s+x,0)/a.en.length);touch(a.id);saveState();
+  const diff=ref.split(/(\s+)/).map(tok=>{const w=norm(tok,lang)[0];return w?`<span class="${ansSet.has(w)?"tok-ok":"tok-miss"}">${esc(tok)}</span>`:tok}).join("");
+  $("#feedback").innerHTML=`<div class="result"><div class="score ${score>=70?"good":"bad"}">${score}%</div><b>${score>=85?"Çok iyi":score>=70?"İyi":"Tekrar dene"}</b>
+  <p class="note">Örnek çeviri — <span class="tok-ok">yeşil</span>: senin çevirinde var, <span class="tok-miss">kırmızı</span>: eksik. Eş anlamlı doğru kelimeler de kırmızı görünebilir; anlamı sen değerlendir.</p><p>${diff}</p>
+  ${lang==="en"?`<button class="btn ghost sm listenOne" data-i="${practiceIdx}">🔊 Doğru telaffuzu dinle</button>`:""}
+  <p class="note">Metin ilerlemesi: ${it.best}% (cümle skorlarının ortalaması)</p></div>`;
+  $$("#feedback .listenOne").forEach(b=>b.onclick=()=>speak([a.en[+b.dataset.i]]));renderList()}
+
+function updateStats(){const vals=Object.values(state.items).filter(x=>x.attempts>0),sc=vals.filter(x=>x.best>0);
+  $("#sTotal").textContent=corpus.length;$("#sDone").textContent=Object.values(state.items).filter(x=>x.done).length;$("#sTried").textContent=vals.length;
+  $("#sAvg").textContent=(sc.length?Math.round(sc.reduce((s,x)=>s+x.best,0)/sc.length):0)+"%";
+  let n=0;const d=new Date();if(!state.days[today()])d.setDate(d.getDate()-1);
+  while(true){const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;if(state.days[k]){n++;d.setDate(d.getDate()-1)}else break}
+  $("#sStreak").textContent=n}
+
+function exportProgress(){const b=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});const u=URL.createObjectURL(b);const l=document.createElement("a");l.href=u;l.download=`ceviriden-ogren-ilerleme-${today()}.json`;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+function importProgress(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const inc=JSON.parse(r.result);if(inc.schema!==2)throw 0;state=mergeStates(state,inc);saveState();rebuild();render();toast("Yedek birleştirildi")}catch(err){toast("Geçersiz yedek dosyası")}};r.readAsText(f)}
+
+/* 4) GOOGLE DRIVE EŞİTLEME (appDataFolder, drive.appdata) */
+const CID_KEY="ceviridenOgren.gClientId",DRIVE_FILE="ceviriden-ogren-progress.json",SCOPE="https://www.googleapis.com/auth/drive.appdata";
+let tokenClient=null,gAccess={token:null,exp:0},driveFileId=null,syncTimer=null,syncing=false;
+const driveToken=()=>gAccess.token&&Date.now()<gAccess.exp-60000?gAccess.token:null;
+function setSync(t){$("#syncStatus").textContent="☁️ "+t;const s=$("#syncInline");if(s)s.textContent="☁️ "+t}
+function initDrive(){const cid=localStorage.getItem(CID_KEY);if(!cid)return;
+  if(location.protocol==="file:"){setSync("Drive için uygulamayı https adresinden açın · ilerleme bu cihazda");return}
+  const go=()=>{tokenClient=google.accounts.oauth2.initTokenClient({client_id:cid,scope:SCOPE,callback:async r=>{if(r.error){setSync("Drive izni alınamadı: "+r.error);return}gAccess={token:r.access_token,exp:Date.now()+(+r.expires_in||3600)*1000};localStorage.setItem("ceviridenOgren.gLinked","1");await syncNow();if(currentTab==="sync")render()}});
+    setSync(localStorage.getItem("ceviridenOgren.gLinked")?"Drive'a yeniden bağlanmak için “Kayıt & Drive” → Bağlan":"Drive hazır · bağlanmak için “Kayıt & Drive” sekmesi")};
+  if(window.google?.accounts?.oauth2)return go();
+  const s=document.createElement("script");s.src="https://accounts.google.com/gsi/client";s.async=true;s.onload=go;s.onerror=()=>setSync("Google kütüphanesi yüklenemedi (internet?) · ilerleme bu cihazda");document.head.appendChild(s)}
+function connectDrive(){if(!tokenClient){toast("Önce Client ID'yi kaydedin ve uygulamayı https üzerinden açın");return}tokenClient.requestAccessToken({prompt:localStorage.getItem("ceviridenOgren.gLinked")?"":"consent"})}
+async function gfetch(url,opt={}){const t=driveToken();if(!t)throw new Error("token");const r=await fetch(url,{...opt,headers:{...(opt.headers||{}),Authorization:"Bearer "+t}});if(!r.ok)throw new Error("Drive "+r.status);return r}
+async function findFile(){if(driveFileId)return driveFileId;const q=encodeURIComponent(`name='${DRIVE_FILE}'`);
+  const r=await gfetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=${q}&fields=files(id,modifiedTime)&orderBy=modifiedTime desc`);const j=await r.json();driveFileId=j.files?.[0]?.id||null;return driveFileId}
+async function pullRemote(){const id=await findFile();if(!id)return null;const r=await gfetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);return r.json()}
+async function pushRemote(data){const body=JSON.stringify(data);const id=await findFile();
+  if(id){await gfetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:"PATCH",headers:{"Content-Type":"application/json"},body});return}
+  const b="co"+Date.now(),meta={name:DRIVE_FILE,parents:["appDataFolder"],mimeType:"application/json"};
+  const mp=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`;
+  const r=await gfetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",{method:"POST",headers:{"Content-Type":"multipart/related; boundary="+b},body:mp});driveFileId=(await r.json()).id}
+async function syncNow(){if(syncing||!driveToken())return;syncing=true;setSync("Eşitleniyor…");
+  try{const remote=await pullRemote();if(remote&&remote.schema===2)state=mergeStates(state,remote);foApply();state.updatedAt=Date.now();localStorage.setItem(LS_KEY,JSON.stringify(state));
+    await pushRemote(state);rebuild();updateStats();renderList();setSync("Drive ile eşitlendi · "+new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"}))}
+  catch(e){setSync(e.message==="token"?"Drive oturumu doldu · tekrar bağlanın (ilerleme bu cihazda güvende)":"Eşitleme hatası: "+e.message+" · ilerleme bu cihazda güvende")}
+  finally{syncing=false}}
+function scheduleDriveSync(){if(!driveToken()){if(localStorage.getItem("ceviridenOgren.gLinked")&&tokenClient)setSync("Değişiklikler bu cihazda · Drive'a göndermek için yeniden bağlanın");return}clearTimeout(syncTimer);syncTimer=setTimeout(syncNow,2500)}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
+
+function setTab(){$$(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===currentTab))}
+voaOpt();renderTopics();updateStats();render();initDrive();voaRefresh();
+$("#collection").onchange=()=>{renderTopics();const f=filtered();if(f.length&&!f.find(a=>a.id===selectedId))selectedId=f[0].id;practiceIdx=0;stopSpeak();render()};
+[$("#direction"),$("#level"),$("#topic"),$("#status")].forEach(x=>x.onchange=()=>{const f=filtered();if(f.length&&!f.find(a=>a.id===selectedId))selectedId=f[0].id;practiceIdx=0;stopSpeak();render()});
+$("#search").oninput=renderList;
+$("#randomBtn").onclick=()=>{const f=filtered();if(!f.length)return;selectedId=f[Math.floor(Math.random()*f.length)].id;practiceIdx=0;render()};
+$("#nextTodoBtn").onclick=()=>{const f=filtered().filter(a=>!state.items[a.id]?.done);if(!f.length){toast("Bu filtrede öğrenilmemiş metin kalmadı 🎉");return}const i=f.findIndex(a=>a.id===selectedId);selectedId=f[(i+1)%f.length].id;practiceIdx=0;render()};
+$$(".tab").forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;setTab();stopSpeak();render()});
+
+/* 5) ÇEVRİMDIŞI ÇALIŞMA */
+
+</script>
+</body>
+</html>
