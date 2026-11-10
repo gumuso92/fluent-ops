@@ -1,0 +1,42 @@
+{
+ "name": "Fluent Ops",
+ "short_name": "Fluent Ops",
+ "description": "İngilizce dersleri ve Türkçe ↔ İngilizce çeviri çalışması: iki kol, tek uygulama.",
+ "lang": "tr",
+ "id": "./",
+ "start_url": "./index.html",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "any",
+ "background_color": "#102a43",
+ "theme_color": "#102a43",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "icon-180.png",
+   "sizes": "180x180",
+   "type": "image/png"
+  }
+ ],
+ "shortcuts": [
+  {
+   "name": "Dersler",
+   "url": "./index.html"
+  },
+  {
+   "name": "Çeviriden Öğren",
+   "url": "./ceviri.html"
+  }
+ ]
+}

@@ -104,7 +104,7 @@ h3{font-size:16px}
 @media(max-width:420px){.pkbar b{display:none}.pkseg{margin-left:auto}}
 </style>
 <nav class="pkbar" aria-label="Uygulama kolları"><div class="pkbar-in"><img src="icon-180.png" alt=""><b>FLUENT OPS</b>
-<div class="pkseg"><a href="./" >Dersler</a><a href="ceviri.html" aria-current="page">Çeviriden Öğren</a></div></div></nav>
+<div class="pkseg"><a href="index.html" >Dersler</a><a href="ceviri.html" aria-current="page">Çeviriden Öğren</a></div></div></nav>
 <div class="app">
 <header class="hero">
   <h1>Çeviriden Öğren</h1>
@@ -146,7 +146,7 @@ h3{font-size:16px}
 </div>
 <script src="news-voa.js"></script>
 <script src="reading-content.js"></script>
-
+<script src="mtr-content.js"></script>
 <script>if(!(window.MTR_TEXTS&&window.MTR_TEXTS.length)){try{const s=localStorage.getItem("co.mtr");if(s)window.MTR_TEXTS=JSON.parse(s)}catch(e){}}</script>
 <script>
 "use strict";
@@ -670,7 +670,7 @@ $("#nextTodoBtn").onclick=()=>{const f=filtered().filter(a=>!state.items[a.id]?.
 $$(".tab").forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;setTab();stopSpeak();render()});
 
 /* 5) ÇEVRİMDIŞI ÇALIŞMA */
-
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}))}
 </script>
 </body>
 </html>
