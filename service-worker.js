@@ -1,7 +1,7 @@
 // Fluent Ops – çevrimdışı önbellek. Yeni sürüm yüklediğinde VERSION'u artır.
-const VERSION = "fo-pkg-v8";
+const VERSION = "fo-pkg-v9";
 const CORE = ["./", "./index.html", "./ceviri.html", "./french-content.js", "./news-voa.js", "./reading-content.js", "./manifest.json", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
-const DATA = ["./data/ACC.js", "./data/BUS.js", "./data/CIV.js", "./data/EXE.js", "./data/FIN.js", "./data/GEN.js", "./data/GRM.js", "./data/HRM.js", "./data/IND.js", "./data/KS1.js", "./data/KS2.js", "./data/KS3.js", "./data/LAW.js", "./data/LOG.js", "./data/MEC.js", "./data/MED.js", "./data/NVH.js", "./data/SAL.js", "./data/SWD.js", "./data/TRV.js", "./mtr-content.js"];
+const DATA = ["./data/ACC.js", "./data/BUS.js", "./data/CIV.js", "./data/EXE.js", "./data/FIN.js", "./data/FK1.js", "./data/GEN.js", "./data/GRM.js", "./data/HRM.js", "./data/IND.js", "./data/KS1.js", "./data/KS2.js", "./data/KS3.js", "./data/LAW.js", "./data/LOG.js", "./data/MEC.js", "./data/MED.js", "./data/NVH.js", "./data/SAL.js", "./data/SWD.js", "./data/TRV.js", "./mtr-content.js"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE).then(() => Promise.all(DATA.map(u => c.add(u).catch(() => {}))))).then(() => self.skipWaiting()));
 });

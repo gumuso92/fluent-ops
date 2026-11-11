@@ -445,8 +445,8 @@ function mergeStates(a,b){
 /* 3) UYGULAMA */
 const MTR=(window.MTR_TEXTS||[]).map(t=>({...t,col:"mtr"}));
 const stripAl=x=>x.replace(/\[\d+\|?([^\]]*)\]/g,"$1");const RD_CATS=window.RD_CATS||[];const rdCat=Object.fromEntries(RD_CATS.map(c=>[c.code,c.tr]));
-const RD=(window.RD_TEXTS||[]).map(t=>({id:t.id,title:t.title,topicKey:"rd-"+t.code,topic:"Okuma · "+(rdCat[t.code]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"Fluent Ops özgün okuma makalesi · "+t.titleTr,col:"read"}));
 let L2="en";try{L2=localStorage.getItem("co.lang")==="fr"?"fr":"en"}catch(e){}
+const RD=(window.RD_TEXTS||[]).map(t=>{const hf=t.s.every(x=>x.fr);return{id:t.id,title:(L2==="fr"&&t.titleFr)||t.title,topicKey:"rd-"+t.code,topic:"Okuma · "+(rdCat[t.code]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),fr:hf?t.s.map(x=>stripAl(x.fr)):undefined,al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en),fr:hf?parseAl(x.fr):undefined})),origin:"Fluent Ops özgün okuma makalesi · "+t.titleTr,col:"read"}});
 const LN=L2==="fr"?"Fransızca":"İngilizce",LNs=L2==="fr"?"Fransızcasını":"İngilizcesini",LNnat=L2==="fr"?"Français":"English";
 const FR_TOPICS=window.FR_TOPICS||[];const frTop=Object.fromEntries(FR_TOPICS.map(t=>[t.code,t.tr]));
 const FRX=(window.FR_TEXTS||[]).map(t=>({id:t.id,title:L2==="fr"?t.title:t.titleTr,titleTr:t.titleTr,topicKey:"fr-"+t.topic,topic:(frTop[t.topic]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),fr:t.s.map(x=>stripAl(x.fr)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en),fr:parseAl(x.fr)})),origin:"Fluent Ops özgün başlangıç metni · çocuk & aile",col:"fra"}));
@@ -668,7 +668,7 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 
 function setTab(){$$(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===currentTab))}
 $("#lang2").value=L2;$("#lang2").onchange=e=>{try{localStorage.setItem("co.lang",e.target.value)}catch(x){}location.reload()};
-if(L2==="fr"){const d=$("#direction");d.options[0].text="Türkçe → Fransızca";d.options[1].text="Fransızca → Türkçe";const hp=$(".hero p");if(hp)hp.textContent="Türkçe ↔ Fransızca: oku, dinle, çevir ve “Done” ile işaretle. Renkler aynı anlamı gösterir.";$$("#collection option").forEach(o=>{if(!["all","fra"].includes(o.value))o.hidden=true});document.documentElement.lang="tr"}
+if(L2==="fr"){const d=$("#direction");d.options[0].text="Türkçe → Fransızca";d.options[1].text="Fransızca → Türkçe";const hp=$(".hero p");if(hp)hp.textContent="Türkçe ↔ Fransızca: oku, dinle, çevir ve “Done” ile işaretle. Renkler aynı anlamı gösterir.";$$("#collection option").forEach(o=>{if(!["all","fra","read"].includes(o.value))o.hidden=true});document.documentElement.lang="tr"}
 voaOpt();renderTopics();updateStats();render();initDrive();if(L2!=="fr")voaRefresh();
 $("#collection").onchange=()=>{renderTopics();const f=filtered();if(f.length&&!f.find(a=>a.id===selectedId))selectedId=f[0].id;practiceIdx=0;stopSpeak();render()};
 [$("#direction"),$("#level"),$("#topic"),$("#status")].forEach(x=>x.onchange=()=>{const f=filtered();if(f.length&&!f.find(a=>a.id===selectedId))selectedId=f[0].id;practiceIdx=0;stopSpeak();render()});
