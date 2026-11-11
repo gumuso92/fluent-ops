@@ -120,8 +120,8 @@ h3{font-size:16px}
 </header>
 
 <div class="toolbar">
-  <select id="direction" class="control"><option value="tr-en">Türkçe → İngilizce</option><option value="en-tr">İngilizce → Türkçe</option></select>
-  <select id="collection" class="control"><option value="all">Tüm koleksiyonlar</option><option value="voa" id="voaOpt">Günlük haberler</option><option value="gen">Genel (1000)</option><option value="acad">Akademik (300)</option><option value="read">Okuma makaleleri (500)</option><option value="mtr">MTR okuma (200)</option></select>
+  <select id="lang2" class="control" aria-label="Öğrenilen dil"><option value="en">🇬🇧 İngilizce</option><option value="fr">🇫🇷 Fransızca</option></select><select id="direction" class="control"><option value="tr-en">Türkçe → İngilizce</option><option value="en-tr">İngilizce → Türkçe</option></select>
+  <select id="collection" class="control"><option value="all">Tüm koleksiyonlar</option><option value="fra">Başlangıç · Çocuk & Aile</option><option value="voa" id="voaOpt">Günlük haberler</option><option value="gen">Genel (1000)</option><option value="acad">Akademik (300)</option><option value="read">Okuma makaleleri (500)</option><option value="mtr">MTR okuma (200)</option></select>
   <select id="level" class="control"><option value="all">Tüm zorluklar</option><option value="1">Kolay</option><option value="2">Orta</option><option value="3">Zor</option></select>
   <select id="topic" class="control"><option value="all">Tüm konular</option></select>
   <select id="status" class="control"><option value="all">Tüm durumlar</option><option value="todo">Öğrenilmedi</option><option value="tried">Çalışıldı</option><option value="done">Done</option></select>
@@ -144,6 +144,7 @@ h3{font-size:16px}
   </main>
 </div>
 </div>
+<script src="french-content.js"></script>
 <script src="news-voa.js"></script>
 <script src="reading-content.js"></script>
 <script src="mtr-content.js"></script>
@@ -445,7 +446,12 @@ function mergeStates(a,b){
 const MTR=(window.MTR_TEXTS||[]).map(t=>({...t,col:"mtr"}));
 const stripAl=x=>x.replace(/\[\d+\|?([^\]]*)\]/g,"$1");const RD_CATS=window.RD_CATS||[];const rdCat=Object.fromEntries(RD_CATS.map(c=>[c.code,c.tr]));
 const RD=(window.RD_TEXTS||[]).map(t=>({id:t.id,title:t.title,topicKey:"rd-"+t.code,topic:"Okuma · "+(rdCat[t.code]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"Fluent Ops özgün okuma makalesi · "+t.titleTr,col:"read"}));
-const base=[...buildCorpus(),...buildAcad(),...RD,...MTR];
+let L2="en";try{L2=localStorage.getItem("co.lang")==="fr"?"fr":"en"}catch(e){}
+const LN=L2==="fr"?"Fransızca":"İngilizce",LNs=L2==="fr"?"Fransızcasını":"İngilizcesini",LNnat=L2==="fr"?"Français":"English";
+const FR_TOPICS=window.FR_TOPICS||[];const frTop=Object.fromEntries(FR_TOPICS.map(t=>[t.code,t.tr]));
+const FRX=(window.FR_TEXTS||[]).map(t=>({id:t.id,title:L2==="fr"?t.title:t.titleTr,titleTr:t.titleTr,topicKey:"fr-"+t.topic,topic:(frTop[t.topic]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),fr:t.s.map(x=>stripAl(x.fr)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en),fr:parseAl(x.fr)})),origin:"Fluent Ops özgün başlangıç metni · çocuk & aile",col:"fra"}));
+const toL2=a=>L2==="fr"?{...a,id:a.id+"~fr",en:a.fr,al:a.al?a.al.map(x=>x&&x.fr?{tr:x.tr,en:x.fr}:null):null}:a;
+const base=[...FRX,...buildCorpus(),...buildAcad(),...RD,...MTR];
 const VOA_KEY="co.voa",VOA_URL=localStorage.getItem("co.voaUrl")||"news/voa.json";
 const AYL=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];const fmtD=d=>{const p=d.split("-");return +p[2]+" "+AYL[+p[1]-1]+" "+p[0]};
 function voaRaw(){const m=new Map();const put=f=>{(f&&f.items||[]).forEach(t=>{if(t&&t.id&&t.s)m.set(t.id,t)})};put(window.VOA_FEED);try{put(JSON.parse(localStorage.getItem(VOA_KEY)||"null"))}catch(e){}return [...m.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id))}
@@ -456,7 +462,7 @@ async function voaRefresh(){if(location.protocol==="file:")return;try{const r=aw
   const all=[...m.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id)).slice(0,300);try{localStorage.setItem(VOA_KEY,JSON.stringify({items:all}))}catch(e){}
   VOA=voaMap(all);const n=VOA.filter(a=>!old.has(a.id)).length;if(!n)return;const tv=$("#topic").value;rebuild();renderTopics();if([...$("#topic").options].some(o=>o.value===tv))$("#topic").value=tv;voaOpt();updateStats();renderList();toast(n+" yeni günlük haber eklendi")}catch(e){}}
 function voaOpt(){const o=$("#voaOpt");if(o)o.textContent="Günlük haberler ("+VOA.length+")"}
-let corpus=[];function rebuild(){corpus=[...state.customTexts.map(t=>({...t,col:t.col||"gen"})),...VOA,...base]}rebuild();
+let corpus=[];function rebuild(){const all=[...state.customTexts.map(t=>({...t,col:t.col||"gen"})),...VOA,...base];corpus=L2==="fr"?all.filter(a=>Array.isArray(a.fr)&&a.fr.length===a.tr.length).map(toL2):all}rebuild();
 let selectedId=corpus[0].id,currentTab="learn",practiceIdx=0;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const cur=()=>corpus.find(a=>a.id===selectedId)||corpus[0];
@@ -485,7 +491,7 @@ function highlight(s,a,lang){
   const marks=[];const put=(re,cls,attr)=>{x=x.replace(re,(m,p,w)=>{marks.push(`<mark class="${cls}"${attr?attr(w):""}>${w}</mark>`);return p+"\u0000"+(marks.length-1)+"\u0001"})};
   if(topic){put(hlRegex(topic.terms.map(t=>lang==="tr"?t[0]:t[1].replace(/^the /,""))),"hl-term");put(hlRegex([lang==="tr"?topic.tr.toLocaleLowerCase("tr"):topic.en.replace(/^the /,""),lang==="tr"?topic.tr:cap(topic.en.replace(/^the /,""),"en")]),"hl-topic")}
   put(LINK_RE,"hl-link");
-  if(lang==="en")put(AWL_RE,"hl-acad",w=>` data-w="${esc(baseAwl(w))}"`);
+  if(lang==="en"&&L2!=="fr")put(AWL_RE,"hl-acad",w=>` data-w="${esc(baseAwl(w))}"`);
   put(lang==="tr"?TR_VERB_RE:EN_VERB_RE,"hl-verb");
   return x.replace(/\u0000(\d+)\u0001/g,(m,i)=>marks[+i]);
 }
@@ -493,17 +499,17 @@ const legend=`<p class="legend note"><span class="hl-topic">konu</span><span cla
 const colorOn=()=>(state.settings.color||"al")==="al";
 function rend(a,i,lang,s){if(colorOn()&&a.al&&a.al[i]){const segs=lang==="tr"?a.al[i].tr:a.al[i].en;return segs.map(([t,k])=>k?`<span class="al c${(k-1)%8+1}" data-k="${i}-${k}" data-l="${lang}">${esc(t)}</span>`:esc(t)).join("")}return highlight(s,a,lang)}
 function legendFor(a){const on=colorOn();const tg=a.al?`<div class="actions cmode"><span class="note">Renklendirme:</span><button class="btn sm ${on?"primary":"ghost"}" data-cm="al">Yapı yapı eşleme</button><button class="btn sm ${on?"ghost":"primary"}" data-cm="hl">Konu & terim</button></div>`:"";
-  return tg+(on&&a.al?`<p class="note">Aynı renk = aynı anlam parçası. Bir parçaya dokun: karşılığı vurgulanır, İngilizcesi okunur.</p>`:legend)}
+  return tg+(on&&a.al?`<p class="note">Aynı renk = aynı anlam parçası. Bir parçaya dokun: karşılığı vurgulanır, ${LNs} okunur.</p>`:legend)}
 function acadWordsOf(a){const set=new Set();a.en.forEach(s=>{for(const m of s.matchAll(AWL_RE)){const b=baseAwl(m[2]);if(AWL_SET.has(b))set.add(b)}});return [...set].sort()}
 
 /* Ses */
 let voices=[];function loadVoices(){voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}
 if("speechSynthesis" in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
-function pickVoice(){return voices.find(v=>v.lang==="en-US"&&/samantha|google|natural|aria|jenny/i.test(v.name))||voices.find(v=>v.lang==="en-US")||voices.find(v=>v.lang==="en-GB")||voices[0]}
+function pickVoice(){if(L2==="fr"){const f=voices.filter(v=>/^fr/i.test(v.lang));return f.find(v=>v.lang.replace("_","-")==="fr-FR"&&/amélie|amelie|thomas|google|audrey|marie|denise|natural/i.test(v.name))||f.find(v=>v.lang.replace("_","-")==="fr-FR")||f[0]||null}return voices.find(v=>v.lang==="en-US"&&/samantha|google|natural|aria|jenny/i.test(v.name))||voices.find(v=>v.lang==="en-US")||voices.find(v=>v.lang==="en-GB")||voices[0]}
 function speak(list,onEach){
   if(!("speechSynthesis" in window)){toast("Bu tarayıcı sesli okumayı desteklemiyor");return}
   speechSynthesis.cancel();const v=pickVoice();
-  list.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t);u.lang="en-US";if(v)u.voice=v;u.rate=state.settings.rate||0.85;u.onstart=()=>onEach&&onEach(i);u.onend=()=>{if(i===list.length-1&&onEach)onEach(-1)};speechSynthesis.speak(u)});
+  list.forEach((t,i)=>{const u=new SpeechSynthesisUtterance(t);u.lang=L2==="fr"?"fr-FR":"en-US";if(v)u.voice=v;u.rate=state.settings.rate||0.85;u.onstart=()=>onEach&&onEach(i);u.onend=()=>{if(i===list.length-1&&onEach)onEach(-1)};speechSynthesis.speak(u)});
 }
 function stopSpeak(){if("speechSynthesis" in window)speechSynthesis.cancel();$$(".sentence.speaking").forEach(x=>x.classList.remove("speaking"))}
 
@@ -512,15 +518,15 @@ function renderTopics(){const sel=$("#topic");sel.innerHTML='<option value="all"
   const add=(k,l)=>sel.insertAdjacentHTML("beforeend",`<option value="${k}">${l}</option>`);
   if(col==="all"||col==="gen")TOPICS.forEach(t=>add(t.key,t.tr));
   if(col==="all"||col==="acad")ACAD_FIELDS.forEach(t=>add(t.key,"Akademik · "+t.tr));
-  if(col==="all"||col==="voa")[...new Set(VOA.map(a=>a.topicKey))].forEach(k=>add(k,VOA.find(a=>a.topicKey===k).topic));if(col==="all"||col==="read")RD_CATS.forEach(c=>add("rd-"+c.code,"Okuma · "+c.tr));if(col==="all"||col==="mtr")add("mtr","MTR okuma metinleri")}
+  if(col==="all"||col==="fra")FR_TOPICS.forEach(t=>add("fr-"+t.code,"Başlangıç · "+t.tr));if(col==="all"||col==="voa")[...new Set(VOA.map(a=>a.topicKey))].forEach(k=>add(k,VOA.find(a=>a.topicKey===k).topic));if(col==="all"||col==="read")RD_CATS.forEach(c=>add("rd-"+c.code,"Okuma · "+c.tr));if(col==="all"||col==="mtr")add("mtr","MTR okuma metinleri")}
 function filtered(){const q=$("#search").value.toLocaleLowerCase("tr"),c=$("#collection").value,l=$("#level").value,t=$("#topic").value,s=$("#status").value;
   return corpus.filter(a=>{const it=state.items[a.id];
     if(c!=="all"&&a.col!==c)return false;
     if(l!=="all"&&String(a.level)!==l)return false;if(t!=="all"&&a.topicKey!==t)return false;
     if(s==="done"&&!it?.done)return false;if(s==="todo"&&(it?.done))return false;if(s==="tried"&&!(it&&it.attempts>0&&!it.done))return false;
     if(q&&!(a.title+" "+a.topic+" "+(a.tr||[]).join(" ")+" "+a.en.join(" ")).toLocaleLowerCase("tr").includes(q))return false;return true})}
-function lvBadge(l){return `<span class="badge lv${l}">${LEVELS[l].name} · ${LEVELS[l].cefr}</span>`}
-const colName={gen:"Genel",acad:"Akademik",read:"Okuma",voa:"Haber",mtr:"MTR"};
+function lvBadge(l,col){const F={1:"Çok kolay · A1",2:"Kolay · A1–A2"};return `<span class="badge lv${l}">${col==="fra"?F[l]:LEVELS[l].name+" · "+LEVELS[l].cefr}</span>`}
+const colName={gen:"Genel",acad:"Akademik",read:"Okuma",fra:"Başlangıç",voa:"Haber",mtr:"MTR"};
 let listPage=0,listSig="",listSel=null;const PAGE=100;
 function renderList(){const list=filtered();const sig=["#search","#collection","#level","#topic","#status","#direction"].map(x=>$(x).value).join("|");const ix=list.findIndex(a=>a.id===selectedId);
   if(sig!==listSig||selectedId!==listSel){if(ix>=0)listPage=Math.floor(ix/PAGE);else if(sig!==listSig)listPage=0;listSig=sig;listSel=selectedId}
@@ -532,16 +538,16 @@ function renderList(){const list=filtered();const sig=["#search","#collection","
   $$("#articleList [data-pg]").forEach(b=>b.onclick=()=>{listPage+=+b.dataset.pg;renderList();const sb=$(".sidebar");if(sb)sb.scrollTop=0});
   $$(".article").forEach(b=>b.onclick=()=>{selectedId=b.dataset.id;practiceIdx=0;stopSpeak();render();if(innerWidth<780)$(".reader").scrollIntoView({behavior:"smooth"})})}
 
-function head(a){const it=state.items[a.id];return `<div class="topline"><div><h2>${esc(a.title)}</h2><span class="badge">${esc(a.topic)}</span>${lvBadge(a.level)}<span class="badge">${a.en.length} cümle</span>${a.col!=="gen"?`<span class="badge bacad">${colName[a.col]}</span>`:""}${it?.best?`<span class="badge">en iyi: ${it.best}%</span>`:""}${a.src?`<div class="note voasrc">${a.cat?`<b>${esc(a.cat)}</b> · `:""}${esc(a.titleTr||"")} · Kaynak: <a href="${esc(a.src)}" target="_blank" rel="noopener">${esc(a.by||"haber")}</a> (${esc(a.note||"")})</div>`:""}</div>
+function head(a){const it=state.items[a.id];return `<div class="topline"><div><h2>${esc(a.title)}</h2><span class="badge">${esc(a.topic)}</span>${lvBadge(a.level,a.col)}<span class="badge">${a.en.length} cümle</span>${a.col!=="gen"?`<span class="badge bacad">${colName[a.col]}</span>`:""}${it?.best?`<span class="badge">en iyi: ${it.best}%</span>`:""}${a.src?`<div class="note voasrc">${a.cat?`<b>${esc(a.cat)}</b> · `:""}${esc(a.titleTr||"")} · Kaynak: <a href="${esc(a.src)}" target="_blank" rel="noopener">${esc(a.by||"haber")}</a> (${esc(a.note||"")})</div>`:""}</div>
   <div class="actions"><button class="btn ghost sm" id="listenAll">🔊 Tümünü dinle</button><button class="btn ghost sm" id="stopAll">⏹</button>
   <select id="rate" class="control" style="min-width:auto;padding:6px"><option value="0.7">0.7×</option><option value="0.85">0.85×</option><option value="1">1×</option></select></div></div>
   ${!hasTr(a)?`<div class="info">Bu bir <b>MTR okuma metni</b>: yalnızca İngilizce aslı var, hazır Türkçe çevirisi yok. Bu yüzden her zaman <b>İngilizce → Türkçe</b> çalışılır. Kendi çevirini yaz, istersen her cümleyi 🌐 ile çeviri motorunda karşılaştır (internet gerekir).</div>`:""}`}
 function doneBar(a){const it=state.items[a.id];return `<div class="donebar actions">${it?.done?`<button class="btn success" id="doneBtn">✅ Done · ${esc(new Date(it.doneAt).toLocaleDateString("tr-TR"))}</button><button class="btn ghost sm" id="undoneBtn">Geri al</button>`:`<button class="btn primary" id="doneBtn">✔ Done — bu metni tamamen öğrendim</button>`}<span class="note">Done kaydı kalıcıdır; Drive bağlıysa tüm cihazlara eşitlenir.</span></div>`}
-function learnView(a){const sl=srcLang(a),T=tgt(a);return head(a)+legendFor(a)+src(a).map((s,i)=>`<div class="sentence" data-s="${i}"><div class="source"><span class="num">${i+1}</span>${rend(a,i,sl,s)}</div><div class="translation hidden">${T?rend(a,i,sl==="tr"?"en":"tr",T[i]):`<span class="note">Hazır çeviri yok.</span> <a class="btn ghost sm" target="_blank" rel="noopener" href="${bingUrl(a.en[i])}">🌐 Çeviri motorunda gör</a>`}<div style="margin-top:6px"><button class="btn ghost sm listenOne" data-i="${i}">🔊 İngilizcesini dinle</button></div></div></div>`).join("")+`<div class="actions"><button id="toggleAll" class="btn ghost">Tüm çevirileri göster/gizle</button></div><p class="note">Cümleye dokun → çeviri açılır. Pembe kelimeye dokun → akademik kelime anlamı. Kaynak: ${esc(a.origin)}.</p>`+doneBar(a)}
-function fullView(a){const sl=srcLang(a),T=tgt(a);return head(a)+legendFor(a)+`<div class="grid"><div class="sentence" style="flex:1;min-width:260px;cursor:default"><b>${sl==="tr"?"Türkçe":"English"}</b><p>${src(a).map((x,j)=>rend(a,j,sl,x)).join(" ")}</p></div>${T?`<div class="sentence" style="flex:1;min-width:260px;cursor:default"><b>${sl==="tr"?"English":"Türkçe"}</b><p>${T.map((x,j)=>rend(a,j,sl==="tr"?"en":"tr",x)).join(" ")}</p></div>`:""}</div>`+doneBar(a)}
+function learnView(a){const sl=srcLang(a),T=tgt(a);return head(a)+legendFor(a)+src(a).map((s,i)=>`<div class="sentence" data-s="${i}"><div class="source"><span class="num">${i+1}</span>${rend(a,i,sl,s)}</div><div class="translation hidden">${T?rend(a,i,sl==="tr"?"en":"tr",T[i]):`<span class="note">Hazır çeviri yok.</span> <a class="btn ghost sm" target="_blank" rel="noopener" href="${bingUrl(a.en[i])}">🌐 Çeviri motorunda gör</a>`}<div style="margin-top:6px"><button class="btn ghost sm listenOne" data-i="${i}">🔊 ${LNs} dinle</button></div></div></div>`).join("")+`<div class="actions"><button id="toggleAll" class="btn ghost">Tüm çevirileri göster/gizle</button></div><p class="note">Cümleye dokun → çeviri açılır. Pembe kelimeye dokun → akademik kelime anlamı. Kaynak: ${esc(a.origin)}.</p>`+doneBar(a)}
+function fullView(a){const sl=srcLang(a),T=tgt(a);return head(a)+legendFor(a)+`<div class="grid"><div class="sentence" style="flex:1;min-width:260px;cursor:default"><b>${sl==="tr"?"Türkçe":LNnat}</b><p>${src(a).map((x,j)=>rend(a,j,sl,x)).join(" ")}</p></div>${T?`<div class="sentence" style="flex:1;min-width:260px;cursor:default"><b>${sl==="tr"?LNnat:"Türkçe"}</b><p>${T.map((x,j)=>rend(a,j,sl==="tr"?"en":"tr",x)).join(" ")}</p></div>`:""}</div>`+doneBar(a)}
 function practiceView(a){const n=a.en.length,i=Math.min(practiceIdx,n-1),T=tgt(a);return head(a)+`<p class="note">Cümle ${i+1} / ${n}</p><div class="progress"><i style="width:${(i/n)*100}%"></i></div>
   <div class="sentence" style="cursor:default"><div class="source">${highlight(src(a)[i],a,srcLang(a))}</div>${srcLang(a)==="en"?`<button class="btn ghost sm listenOne" data-i="${i}" style="margin-top:6px">🔊 Dinle</button>`:""}</div>
-  <textarea id="answer" class="answer" placeholder="${srcLang(a)==="tr"?"İngilizce çevirini yaz…":"Türkçe çevirini yaz…"}"></textarea>
+  <textarea id="answer" class="answer" placeholder="${srcLang(a)==="tr"?LN+" çevirini yaz…":"Türkçe çevirini yaz…"}"></textarea>
   <div class="actions" style="margin-top:8px"><button id="check" class="btn success">${T?"Kontrol et":"Kaydet ve karşılaştır"}</button>${T?`<button id="showRef" class="btn ghost">Örnek çeviri</button>`:`<a class="btn ghost" target="_blank" rel="noopener" href="${bingUrl(a.en[i])}">🌐 Çeviri motorunda gör</a>`}<button id="prevS" class="btn ghost" ${i===0?"disabled":""}>◀</button><button id="nextS" class="btn ghost" ${i===n-1?"disabled":""}>▶</button></div><div id="feedback"></div>`+doneBar(a)}
 function wordsView(a){const w=acadWordsOf(a);return head(a)+`<h3>Bu metindeki akademik kelimeler (${w.length})</h3>${w.length?`<div class="wordlist">${w.map(x=>`<span class="awl" data-w="${esc(x)}">${esc(x)}${glossOf(x)?" · "+esc(glossOf(x)):""}</span>`).join("")}</div>`:`<p class="note">Bu metinde listedeki akademik kelimelerden biri bulunmuyor.</p>`}
   <p class="note">Liste: ${AWL_WORDS.length} akademik kelime (TOEFL/IELTS/YDS odaklı listeden yalnızca kelimeler alınmıştır; tanım ve örnek cümleler kopyalanmamıştır). Türkçe karşılık yalnızca uygulamanın kendi sözlüğünde bulunan kelimeler için gösterilir. Kelimeye dokununca İngilizce okunur.</p>`+doneBar(a)}
@@ -661,7 +667,9 @@ function scheduleDriveSync(){if(!driveToken()){if(localStorage.getItem("ceviride
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow()});
 
 function setTab(){$$(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===currentTab))}
-voaOpt();renderTopics();updateStats();render();initDrive();voaRefresh();
+$("#lang2").value=L2;$("#lang2").onchange=e=>{try{localStorage.setItem("co.lang",e.target.value)}catch(x){}location.reload()};
+if(L2==="fr"){const d=$("#direction");d.options[0].text="Türkçe → Fransızca";d.options[1].text="Fransızca → Türkçe";const hp=$(".hero p");if(hp)hp.textContent="Türkçe ↔ Fransızca: oku, dinle, çevir ve “Done” ile işaretle. Renkler aynı anlamı gösterir.";$$("#collection option").forEach(o=>{if(!["all","fra"].includes(o.value))o.hidden=true});document.documentElement.lang="tr"}
+voaOpt();renderTopics();updateStats();render();initDrive();if(L2!=="fr")voaRefresh();
 $("#collection").onchange=()=>{renderTopics();const f=filtered();if(f.length&&!f.find(a=>a.id===selectedId))selectedId=f[0].id;practiceIdx=0;stopSpeak();render()};
 [$("#direction"),$("#level"),$("#topic"),$("#status")].forEach(x=>x.onchange=()=>{const f=filtered();if(f.length&&!f.find(a=>a.id===selectedId))selectedId=f[0].id;practiceIdx=0;stopSpeak();render()});
 $("#search").oninput=renderList;
