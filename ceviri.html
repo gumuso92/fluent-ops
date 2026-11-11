@@ -121,7 +121,7 @@ h3{font-size:16px}
 
 <div class="toolbar">
   <select id="direction" class="control"><option value="tr-en">Türkçe → İngilizce</option><option value="en-tr">İngilizce → Türkçe</option></select>
-  <select id="collection" class="control"><option value="all">Tüm koleksiyonlar</option><option value="voa" id="voaOpt">Günlük haberler · VOA</option><option value="gen">Genel (1000)</option><option value="acad">Akademik (300)</option><option value="read">Okuma makaleleri (500)</option><option value="mtr">MTR okuma (200)</option></select>
+  <select id="collection" class="control"><option value="all">Tüm koleksiyonlar</option><option value="voa" id="voaOpt">Günlük haberler</option><option value="gen">Genel (1000)</option><option value="acad">Akademik (300)</option><option value="read">Okuma makaleleri (500)</option><option value="mtr">MTR okuma (200)</option></select>
   <select id="level" class="control"><option value="all">Tüm zorluklar</option><option value="1">Kolay</option><option value="2">Orta</option><option value="3">Zor</option></select>
   <select id="topic" class="control"><option value="all">Tüm konular</option></select>
   <select id="status" class="control"><option value="all">Tüm durumlar</option><option value="todo">Öğrenilmedi</option><option value="tried">Çalışıldı</option><option value="done">Done</option></select>
@@ -415,7 +415,7 @@ const ALIGN={
 "Yalıtım malzemeleri sesi azaltır, fakat aracın ağırlığını ve maliyetini artırabilir.":["[1Yalıtım malzemeleri] [2sesi] [3azaltır], [4fakat] [5aracın ağırlığını ve maliyetini] [6artırabilir].","[1Insulation materials] [3reduce] [2noise], [4but] [6they can increase] [5the vehicle's weight and cost]."],
 "Sonuç olarak iyi bir tasarım, konfor, menzil ve maliyet arasında denge kurar.":["[1Sonuç olarak] [2iyi bir tasarım], [3konfor, menzil ve maliyet arasında] [4denge kurar].","[1In conclusion], [2a good design] [4strikes a balance] [3between comfort, range and cost]."]
 };
-function parseAl(s){const out=[];const re=/\[(\d+)([^\]]*)\]|([^\[]+)/g;let m;while((m=re.exec(s)))out.push(m[1]?[m[2],+m[1]]:[m[3],0]);return out}
+function parseAl(s){const out=[];const re=/\[(\d+)\|?([^\]]*)\]|([^\[]+)/g;let m;while((m=re.exec(s)))out.push(m[1]?[m[2],+m[1]]:[m[3],0]);return out}
 function fillNC(t,lang,topic,a,b){if(!topic)return t;const T=lang==="tr"?topic.tr.toLocaleLowerCase("tr"):topic.en;const A=lang==="tr"?a[0]:a[1],B=lang==="tr"?b[0]:b[1];return t.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{B\}/g,B)}
 function mkAl(key,topic,a,b){const P=ALIGN[key];if(!P)return null;const side=(s,lang)=>{const segs=parseAl(s).map(([t,k])=>[fillNC(t,lang,topic,a,b),k]);if(segs.length&&segs[0][0])segs[0][0]=cap(segs[0][0],lang==="tr"?"tr":"en");return segs};return{tr:side(P[0],"tr"),en:side(P[1],"en")}}
 
@@ -443,19 +443,19 @@ function mergeStates(a,b){
 
 /* 3) UYGULAMA */
 const MTR=(window.MTR_TEXTS||[]).map(t=>({...t,col:"mtr"}));
-const stripAl=x=>x.replace(/\[\d+([^\]]*)\]/g,"$1");const RD_CATS=window.RD_CATS||[];const rdCat=Object.fromEntries(RD_CATS.map(c=>[c.code,c.tr]));
+const stripAl=x=>x.replace(/\[\d+\|?([^\]]*)\]/g,"$1");const RD_CATS=window.RD_CATS||[];const rdCat=Object.fromEntries(RD_CATS.map(c=>[c.code,c.tr]));
 const RD=(window.RD_TEXTS||[]).map(t=>({id:t.id,title:t.title,topicKey:"rd-"+t.code,topic:"Okuma · "+(rdCat[t.code]||""),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"Fluent Ops özgün okuma makalesi · "+t.titleTr,col:"read"}));
 const base=[...buildCorpus(),...buildAcad(),...RD,...MTR];
 const VOA_KEY="co.voa",VOA_URL=localStorage.getItem("co.voaUrl")||"news/voa.json";
 const AYL=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];const fmtD=d=>{const p=d.split("-");return +p[2]+" "+AYL[+p[1]-1]+" "+p[0]};
 function voaRaw(){const m=new Map();const put=f=>{(f&&f.items||[]).forEach(t=>{if(t&&t.id&&t.s)m.set(t.id,t)})};put(window.VOA_FEED);try{put(JSON.parse(localStorage.getItem(VOA_KEY)||"null"))}catch(e){}return [...m.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id))}
-function voaMap(l){return l.map(t=>({id:t.id,title:t.title,titleTr:t.titleTr,topicKey:"voa-"+t.date,topic:"Haber · "+fmtD(t.date),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"VOA haberinden uyarlandı",col:"voa",src:t.src,by:t.by,date:t.date}))}
+function voaMap(l){return l.map(t=>({id:t.id,title:t.title,titleTr:t.titleTr,topicKey:"voa-"+t.date,topic:"Haber · "+fmtD(t.date),level:t.level,tr:t.s.map(x=>stripAl(x.tr)),en:t.s.map(x=>stripAl(x.en)),al:t.s.map(x=>({tr:parseAl(x.tr),en:parseAl(x.en)})),origin:"Günlük haber özeti",col:"voa",src:t.src,by:t.by,date:t.date,cat:t.cat||"",note:t.note||(t.id.startsWith("VOA-")?"sadeleştirilmiş uyarlama":"özgün özet")}))}
 let VOA=voaMap(voaRaw());
 async function voaRefresh(){if(location.protocol==="file:")return;try{const r=await fetch(VOA_URL,{cache:"no-store"});if(!r.ok)return;const f=await r.json();if(!f||!Array.isArray(f.items))return;
   const old=new Set(VOA.map(a=>a.id));let keep=voaRaw();const m=new Map(keep.map(t=>[t.id,t]));f.items.forEach(t=>{if(t&&t.id&&t.s)m.set(t.id,t)});
   const all=[...m.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.id.localeCompare(b.id)).slice(0,300);try{localStorage.setItem(VOA_KEY,JSON.stringify({items:all}))}catch(e){}
   VOA=voaMap(all);const n=VOA.filter(a=>!old.has(a.id)).length;if(!n)return;const tv=$("#topic").value;rebuild();renderTopics();if([...$("#topic").options].some(o=>o.value===tv))$("#topic").value=tv;voaOpt();updateStats();renderList();toast(n+" yeni günlük haber eklendi")}catch(e){}}
-function voaOpt(){const o=$("#voaOpt");if(o)o.textContent="Günlük haberler · VOA ("+VOA.length+")"}
+function voaOpt(){const o=$("#voaOpt");if(o)o.textContent="Günlük haberler ("+VOA.length+")"}
 let corpus=[];function rebuild(){corpus=[...state.customTexts.map(t=>({...t,col:t.col||"gen"})),...VOA,...base]}rebuild();
 let selectedId=corpus[0].id,currentTab="learn",practiceIdx=0;
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -520,7 +520,7 @@ function filtered(){const q=$("#search").value.toLocaleLowerCase("tr"),c=$("#col
     if(s==="done"&&!it?.done)return false;if(s==="todo"&&(it?.done))return false;if(s==="tried"&&!(it&&it.attempts>0&&!it.done))return false;
     if(q&&!(a.title+" "+a.topic+" "+(a.tr||[]).join(" ")+" "+a.en.join(" ")).toLocaleLowerCase("tr").includes(q))return false;return true})}
 function lvBadge(l){return `<span class="badge lv${l}">${LEVELS[l].name} · ${LEVELS[l].cefr}</span>`}
-const colName={gen:"Genel",acad:"Akademik",read:"Okuma",voa:"VOA",mtr:"MTR"};
+const colName={gen:"Genel",acad:"Akademik",read:"Okuma",voa:"Haber",mtr:"MTR"};
 let listPage=0,listSig="",listSel=null;const PAGE=100;
 function renderList(){const list=filtered();const sig=["#search","#collection","#level","#topic","#status","#direction"].map(x=>$(x).value).join("|");const ix=list.findIndex(a=>a.id===selectedId);
   if(sig!==listSig||selectedId!==listSel){if(ix>=0)listPage=Math.floor(ix/PAGE);else if(sig!==listSig)listPage=0;listSig=sig;listSel=selectedId}
@@ -532,7 +532,7 @@ function renderList(){const list=filtered();const sig=["#search","#collection","
   $$("#articleList [data-pg]").forEach(b=>b.onclick=()=>{listPage+=+b.dataset.pg;renderList();const sb=$(".sidebar");if(sb)sb.scrollTop=0});
   $$(".article").forEach(b=>b.onclick=()=>{selectedId=b.dataset.id;practiceIdx=0;stopSpeak();render();if(innerWidth<780)$(".reader").scrollIntoView({behavior:"smooth"})})}
 
-function head(a){const it=state.items[a.id];return `<div class="topline"><div><h2>${esc(a.title)}</h2><span class="badge">${esc(a.topic)}</span>${lvBadge(a.level)}<span class="badge">${a.en.length} cümle</span>${a.col!=="gen"?`<span class="badge bacad">${colName[a.col]}</span>`:""}${it?.best?`<span class="badge">en iyi: ${it.best}%</span>`:""}${a.src?`<div class="note voasrc">${esc(a.titleTr||"")} · Kaynak: <a href="${esc(a.src)}" target="_blank" rel="noopener">${esc(a.by||"VOA")} — voanews.com</a> (sadeleştirilmiş uyarlama)</div>`:""}</div>
+function head(a){const it=state.items[a.id];return `<div class="topline"><div><h2>${esc(a.title)}</h2><span class="badge">${esc(a.topic)}</span>${lvBadge(a.level)}<span class="badge">${a.en.length} cümle</span>${a.col!=="gen"?`<span class="badge bacad">${colName[a.col]}</span>`:""}${it?.best?`<span class="badge">en iyi: ${it.best}%</span>`:""}${a.src?`<div class="note voasrc">${a.cat?`<b>${esc(a.cat)}</b> · `:""}${esc(a.titleTr||"")} · Kaynak: <a href="${esc(a.src)}" target="_blank" rel="noopener">${esc(a.by||"haber")}</a> (${esc(a.note||"")})</div>`:""}</div>
   <div class="actions"><button class="btn ghost sm" id="listenAll">🔊 Tümünü dinle</button><button class="btn ghost sm" id="stopAll">⏹</button>
   <select id="rate" class="control" style="min-width:auto;padding:6px"><option value="0.7">0.7×</option><option value="0.85">0.85×</option><option value="1">1×</option></select></div></div>
   ${!hasTr(a)?`<div class="info">Bu bir <b>MTR okuma metni</b>: yalnızca İngilizce aslı var, hazır Türkçe çevirisi yok. Bu yüzden her zaman <b>İngilizce → Türkçe</b> çalışılır. Kendi çevirini yaz, istersen her cümleyi 🌐 ile çeviri motorunda karşılaştır (internet gerekir).</div>`:""}`}
