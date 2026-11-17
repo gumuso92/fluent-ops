@@ -1,5 +1,5 @@
 // Fluent Ops – çevrimdışı önbellek. Yeni sürüm yüklediğinde VERSION'u artır.
-const VERSION = "fo-pkg-v21";
+const VERSION = "fo-pkg-v22";
 const CORE = ["./", "./index.html", "./ceviri.html", "./french-content.js", "./trend-content.js", "./reading-content.js", "./kurs-content.js", "./genel-content.js", "./manifest.json", "./icon-180.png", "./icon-192.png", "./icon-512.png"];
 const DATA = ["./data/ACC.js", "./data/BUS.js", "./data/CIV.js", "./data/EXE.js", "./data/FIN.js", "./data/FK1.js", "./data/GEN.js", "./data/GRM.js", "./data/HRM.js", "./data/IND.js", "./data/KS1.js", "./data/KS2.js", "./data/KS3.js", "./data/LAW.js", "./data/LOG.js", "./data/MEC.js", "./data/MED.js", "./data/NVH.js", "./data/SAL.js", "./data/SWD.js", "./data/TRV.js", "./mtr-content.js"];
 self.addEventListener("install", e => {

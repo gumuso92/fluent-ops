@@ -567,7 +567,7 @@ $("#nextTodoBtn").onclick=()=>{const f=filtered().filter(a=>!state.items[a.id]?.
 $$(".tab").forEach(b=>b.onclick=()=>{currentTab=b.dataset.tab;setTab();stopSpeak();render()});
 
 /* 5) ÇEVRİMDIŞI ÇALIŞMA */
-if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").catch(()=>{}))}
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js").then(r=>r.update()).catch(()=>{}));let rl=0;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!rl){rl=1;location.reload()}})}
 </script>
 </body>
 </html>
